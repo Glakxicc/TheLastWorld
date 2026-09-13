@@ -1,0 +1,196 @@
+.form-container {
+  margin: 2rem;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  max-height: 546px;
+
+  border: solid 1px rgba(255, 255, 255, 0.169);
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.left-part {
+  margin: 0;
+  width: 30%;
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 250px;
+  grid-template-areas:
+    "paragraph"
+    "buttons";
+}
+
+h1 {
+  margin: 0;
+  font-size: 64px;
+}
+
+.paragraph-box {
+  margin: 0;
+  grid-area: paragraph;
+}
+
+.paragraph-box p {
+  border-left: 1px solid #fff;
+  font-size: 14px;
+  width: 336px;
+  padding-left: 5px;
+}
+
+.button-box {
+  position: relative;
+  margin: 0;
+  grid-area: buttons;
+  width: 225px;
+  height: fit-content;
+}
+
+#login {
+  position: absolute;
+  bottom: 0;
+}
+
+#login:hover {
+  background-color: #d9d9d9af;
+}
+
+form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0px 12px;
+  grid-template-areas:
+    "btn input input"
+    "btn input input"
+    "btn input input"
+    "btn input input"
+    "btn input input";
+}
+
+.button-container {
+  position: relative;
+  display: grid;
+  grid-area: btn;
+  gap: 21px 12px;
+  grid-template-rows: 56px 56px 56px 120px 120px;
+  grid-template-areas:
+    "staff"
+    "illegal"
+    "none"
+    "none"
+    "send-form";
+}
+
+.input-container {
+  display: grid;
+  gap: 21px 12px;
+  grid-area: input;
+  grid-template-rows: 56px 56px 56px 120px 120px;
+  grid-template-areas:
+    "discord ageIRL"
+    "nameRP surnameRP"
+    "ageRP bornPlace"
+    "rp-xp rp-xp"
+    "rp-story rp-story";
+}
+
+.input-box {
+  position: relative;
+}
+
+.input-box label {
+  position: absolute;
+  color: #fff;
+  font-size: 16px;
+  margin: 0;
+  top: -10px;
+  left: 10px;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  background-color: #d9d9d9;
+  color: #000000;
+  font-size: 20px;
+  text-align: left;
+  height: 38px;
+}
+
+input,
+textarea {
+  border: 1px solid #000000;
+  border-radius: 4px;
+  background-color: #2b2b2b;
+  color: #000000;
+  height: 56px;
+  line-height: 2rem;
+  font-size: 15px;
+  color: #fff;
+  width: 100%;
+  overflow: hidden;
+  resize: none;
+}
+
+#staff,
+#illegal,
+#send-form {
+  text-align: right;
+  width: 100%;
+  height: 56px;
+}
+
+#staff {
+  grid-area: staff;
+  background-color: #25d940;
+}
+
+#illegal {
+  grid-area: illegal;
+  background-color: #ff4242;
+}
+
+#send-form {
+  position: absolute;
+  margin: 0;
+  bottom: -10px;
+  grid-area: send-form;
+  background-color: #ff4242;
+}
+
+.input-box:has(#discord) {
+  grid-area: discord;
+}
+.input-box:has(#age_irl) {
+  grid-area: ageIRL;
+}
+
+.input-box:has(#first_name) {
+  grid-area: nameRP;
+}
+
+.input-box:has(#last_name) {
+  grid-area: surnameRP;
+}
+
+.input-box:has(#age_character) {
+  grid-area: ageRP;
+}
+
+.input-box:has(#rp_born) {
+  grid-area: bornPlace;
+}
+
+.input-box:has(#rp_experience) {
+  grid-area: rp-xp;
+}
+
+.input-box:has(#rp_story) {
+  grid-area: rp-story;
+}
+
+#rp_experience,
+#rp_story {
+  max-width: 100%;
+  height: 125px;
+}
