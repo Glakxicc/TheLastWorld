@@ -1,6 +1,7 @@
 // --- Import ---
 
-require('dotenv').config();
+import 'dotenv/config'
+
 // --- Variable ---
 // -- Input --
 
