@@ -1,6 +1,6 @@
 // --- Import ---
 
-
+require('dotenv').config();
 // --- Variable ---
 // -- Input --
 
@@ -173,13 +173,6 @@ async function sendInformation() {
   inputXp.value = "";
   inputStory.value = "";
 
-  let recupJson = async () => {
-    let result = await fetch('../../donne.json');
-    let data = await result.json();
-    const webhookUrl = data.discord_webhook;
-    return webhookUrl;
-  };
-
   const payload = {
     embeds: [
       {
@@ -260,7 +253,7 @@ async function sendInformation() {
       },
     }).showToast();
   } else {
-    const webhookurl = await recupJson();
+    const webhookurl = process.env.DISCORD_WEBHOOK_URL;
     const response = await fetch(webhookurl, {
       method: "POST",
       headers: {
