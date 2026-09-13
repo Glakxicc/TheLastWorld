@@ -1,0 +1,9 @@
+- name: Deploy via SSH
+  uses: appleboy/ssh-action@v1
+  with:
+    host: ton-domaine.com
+    username: ton-utilisateur-ssh
+    key: ${{ secrets.SSH_PRIVATE_KEY }}  # Clé SSH privée stockée dans les secrets
+    script: |
+      cd /public
+      git pull https://github.com/Glakxicc/TheLastWorld
