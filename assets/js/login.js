@@ -1,7 +1,5 @@
 // --- Import ---
 
-import 'dotenv/config'
-
 // --- Variable ---
 // -- Input --
 
@@ -254,8 +252,11 @@ async function sendInformation() {
       },
     }).showToast();
   } else {
-    const webhookurl = process.env.DISCORD_WEBHOOK_URL;
-    const response = await fetch(webhookurl, {
+
+    const responsew = await fetch('http://localhost:3000/api/webhook-url');
+    const { url } = await responsew.json();
+
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
