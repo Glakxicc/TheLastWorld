@@ -154,14 +154,6 @@ loginBtn.addEventListener("click", (event) => {
 });
 
 async function sendInformation() {
-  const cors = require("cors");
-  app.use(
-    cors({
-      origin: "https://www.thelastword.fr",
-      methods: ["GET", "POST"],
-      credentials: true,
-    }),
-  ); 
   const discordValue = inputDiscord.value;
   const ageIRLValue = inputAgeIrl.value;
   const nameValue = inputName.value;
@@ -261,7 +253,7 @@ async function sendInformation() {
     }).showToast();
   } else {
     const responsew = await fetch(
-      "https://www.thelastword.fr:3000/api/webhook-url",
+      "https://www.thelastworld.fr:3000/api/webhook-url",
     );
     const { url } = await responsew.json();
 
