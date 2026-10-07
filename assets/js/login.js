@@ -252,24 +252,18 @@ async function sendInformation() {
       },
     }).showToast();
   } else {
-    const responsew = await fetch(
-      "https://www.thelastworld.fr:3000/api/webhook-url",
-    );
-    const { url } = await responsew.json();
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      "https://www.thelastworld.fr:3000/api/formulaire",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    });
-
+    );
     if (!response.ok) {
-      console.error(
-        "Erreur lors de l'envoi vers Discord:",
-        response.statusText,
-      );
+      throw new Error("Erreur serveur");
     }
 
     Toastify({
