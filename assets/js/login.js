@@ -253,7 +253,7 @@ async function sendInformation() {
     }).showToast();
   } else {
     const responsew = await fetch(
-      "https://www.thelastworld.fr:3000/api/webhook-url",
+      "https://localhost:3000/api/webhook-url",
     );
     const { url } = await responsew.json();
 
