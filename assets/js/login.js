@@ -261,7 +261,7 @@ async function sendInformation() {
     }).showToast();
   } else {
     const responsew = await fetch(
-      "http://www.thelastword.fr:3000/api/webhook-url",
+      "https://www.thelastword.fr:3000/api/webhook-url",
     );
     const { url } = await responsew.json();
 
