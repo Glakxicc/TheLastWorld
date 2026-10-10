@@ -58,7 +58,7 @@ function setChecked(selector, done) {
   document.querySelector(selector).classList.toggle("done", done);
 }
 
-function formatPlaytime(seconds) {
+export function formatPlaytime(seconds) {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   return hours ? `${numberFormat.format(hours)} h ${minutes} min` : `${minutes} min`;

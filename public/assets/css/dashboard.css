@@ -404,6 +404,75 @@ button.refuse:hover {
   opacity: 0.5;
 }
 
+/* Recherche dans la whitelist */
+.staff-search {
+  margin: 10px 0 0.75rem;
+}
+
+.staff-search input::-webkit-search-cancel-button {
+  filter: invert(1);
+}
+
+#staff-players-results {
+  margin: 0 0 0.75rem;
+}
+
+/* Joueur whitelisté : ligne dépliable avec toutes ses informations */
+/* Le bouton fait partie de la ligne : la boîte grandit avec lui */
+.player-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.player-item > details {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-item summary {
+  line-height: 30px;
+}
+
+.player-item > .refuse {
+  flex-shrink: 0;
+  height: 30px;
+  padding: 0 14px;
+  font-size: 16px;
+}
+
+.player-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.player-details-wide {
+  grid-column: 1 / -1;
+}
+
+.player-details h4 {
+  margin: 0.5rem 0 0;
+  font-size: 18px;
+  font-weight: 10;
+  color: var(--color-accent);
+}
+
+.player-details .application-details {
+  margin: 0.5rem 0;
+}
+
+.player-details .mc-head {
+  margin-top: 0.5rem;
+}
+
+.player-details a {
+  text-decoration: underline;
+}
+
 .post-tag {
   padding: 1px 8px;
   border: 1px solid var(--color-border-soft);

@@ -2,6 +2,7 @@
 
 // --- Import ---
 import { api } from "./api.js";
+import { formatPlaytime } from "./minecraft-card.js";
 import { formatDate } from "./posts.js";
 import { toast } from "./toast.js";
 
@@ -99,6 +100,11 @@ function setupForms() {
     }
   });
 
+  // Filtre la liste des joueurs whitelistés à chaque frappe
+  panel.querySelector("#staff-player-search").addEventListener("input", () => {
+    if (state) renderPlayers();
+  });
+
   panel.querySelectorAll("[data-status]").forEach((button) => {
     button.addEventListener("click", () => run("status.set", { status: button.dataset.status }, button));
   });
@@ -186,8 +192,22 @@ function renderPlayers() {
     return;
   }
 
+  const query = normalize(panel.querySelector("#staff-player-search").value.trim());
+  const players = query
+    ? state.players.filter((player) => searchText(player).includes(query))
+    : state.players;
+
+  const results = panel.querySelector("#staff-players-results");
+  results.hidden = !query;
+  results.textContent = `${players.length} joueur${players.length > 1 ? "s" : ""} sur ${state.players.length}`;
+
+  if (!players.length) {
+    list.replaceChildren(el("p", { className: "hint" }, "Aucun joueur ne correspond à cette recherche."));
+    return;
+  }
+
   list.replaceChildren(
-    ...state.players.map((player) => {
+    ...players.map((player) => {
       const remove = el("button", { type: "button", className: "refuse" }, "Retirer");
       remove.addEventListener("click", () => {
         if (confirm(`Retirer l'accès au site à ${player.username} ?`)) {
@@ -197,22 +217,90 @@ function renderPlayers() {
 
       return el(
         "article",
-        { className: "staff-item staff-row" },
+        { className: "staff-item player-item" },
         el(
-          "div",
+          "details",
           {},
-          el("strong", {}, playerLabel(player)),
           el(
-            "small",
+            "summary",
             {},
-            player.connected ? " · déjà connecté" : " · jamais connecté",
-            player.whitelistedAt ? ` · depuis le ${formatDate(player.whitelistedAt)}` : "",
+            el("strong", {}, playerLabel(player)),
+            el(
+              "small",
+              {},
+              player.connected ? " · déjà connecté" : " · jamais connecté",
+              player.whitelistedAt ? ` · depuis le ${formatDate(player.whitelistedAt)}` : "",
+            ),
           ),
+          playerDetails(player),
         ),
         remove,
       );
     }),
   );
+}
+
+/** Fiche complète d'un joueur, affichée quand on déplie sa ligne. */
+function playerDetails(player) {
+  const { minecraft, stats, sheet } = player;
+  const date = (value) => (value ? formatDate(value) : "—");
+
+  const discord = infoList({
+    Pseudo: player.username,
+    "Nom affiché": player.displayName || "—",
+    Identifiant: player.discordId || "Pas encore connecté au site",
+    "Whitelisté le": date(player.whitelistedAt),
+    "Whitelisté par": player.whitelistedBy || "—",
+    "Dernière connexion au site": date(player.lastLoginAt),
+  });
+
+  const skin = minecraft.skinUrl
+    ? el("a", { href: minecraft.skinUrl, target: "_blank", rel: "noopener noreferrer" }, "Voir le skin")
+    : "—";
+  const mcInfo = infoList({
+    Pseudo: minecraft.username || "Non renseigné",
+    UUID: minecraft.uuid || "—",
+    "Skin du personnage": skin,
+  });
+  const mcStats = stats
+    ? infoList({
+        "En jeu": stats.online ? "🟢 Oui" : "⚫ Non",
+        "Temps de jeu": formatPlaytime(stats.playtimeSeconds),
+        "Dernière connexion": stats.online ? "Maintenant" : date(stats.lastSeen),
+        Morts: String(stats.deaths),
+        "Monstres tués": String(stats.mobKills),
+        "Joueurs tués": String(stats.playerKills),
+      })
+    : el("p", { className: "hint" }, "Aucune statistique reçue du serveur.");
+  const head = minecraft.uuid
+    ? el("img", { className: "mc-head", src: `https://mc-heads.net/avatar/${minecraft.uuid}/48`, alt: "" })
+    : "";
+
+  const character = infoList({
+    Prénom: sheet.first_name || "—",
+    Nom: sheet.last_name || "—",
+    Âge: sheet.age_character || "—",
+    "Lieu de naissance": sheet.rp_born || "—",
+    "Expérience RP": sheet.rp_experience || "—",
+    Histoire: sheet.rp_story || "—",
+  });
+
+  return el(
+    "div",
+    { className: "player-details" },
+    el("section", {}, el("h4", {}, "Discord"), discord),
+    el("section", {}, el("h4", {}, "Minecraft"), head, mcInfo, mcStats),
+    el("section", { className: "player-details-wide" }, el("h4", {}, "Fiche personnage"), character),
+  );
+}
+
+/** Liste « libellé : valeur » (texte brut ou élément). */
+function infoList(entries) {
+  const list = el("dl", { className: "application-details" });
+  for (const [label, value] of Object.entries(entries)) {
+    list.append(el("dt", {}, label), el("dd", {}, value));
+  }
+  return list;
 }
 
 function renderPosts() {
@@ -255,12 +343,38 @@ function renderPosts() {
 
 function renderStatus() {
   panel.querySelector("#staff-status-current").textContent = state.statuses[state.status];
+  // Filtre la liste des joueurs whitelistés à chaque frappe
+  panel.querySelector("#staff-player-search").addEventListener("input", () => {
+    if (state) renderPlayers();
+  });
+
   panel.querySelectorAll("[data-status]").forEach((button) => {
     button.disabled = button.dataset.status === state.status;
   });
 }
 
 // --- Helpers ---
+
+/** Tout ce sur quoi la recherche porte, sans accents ni majuscules. */
+function searchText(player) {
+  return normalize(
+    [
+      player.username,
+      player.displayName,
+      player.discordId,
+      player.minecraft.username,
+      player.sheet.first_name,
+      player.sheet.last_name,
+    ].join(" "),
+  );
+}
+
+function normalize(text) {
+  return (text ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 function playerLabel(player) {
   const name = player.displayName && player.displayName !== player.username

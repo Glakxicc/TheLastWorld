@@ -256,9 +256,28 @@ function updateCharacter(int $playerId, array $character, bool $onlyIfEmpty = fa
     ]);
 }
 
+/** Joueurs whitelistés, avec leurs statistiques Minecraft quand le plugin en a envoyé. */
 function whitelistedPlayers(): array
 {
-    return db()->query('SELECT * FROM players WHERE whitelisted = 1 ORDER BY discord_username')->fetchAll();
+    return db()->query(
+        'SELECT players.*, stats.playtime_seconds, stats.deaths, stats.mob_kills, stats.player_kills,
+                stats.last_seen AS mc_last_seen, stats.online AS mc_online, stats.updated_at AS stats_updated_at
+         FROM players LEFT JOIN player_stats stats ON stats.mc_uuid = players.mc_uuid
+         WHERE players.whitelisted = 1 ORDER BY players.discord_username',
+    )->fetchAll();
+}
+
+/** Fiche personnage, avec les mêmes clés que le formulaire. */
+function characterSheet(array $player): array
+{
+    return [
+        'first_name' => $player['first_name'] ?? '',
+        'last_name' => $player['last_name'] ?? '',
+        'age_character' => $player['character_age'] ?? '',
+        'rp_born' => $player['born'] ?? '',
+        'rp_experience' => $player['experience'] ?? '',
+        'rp_story' => $player['story'] ?? '',
+    ];
 }
 
 /** Données d'un joueur renvoyées au navigateur. */
@@ -280,14 +299,7 @@ function publicPlayer(array $player): array
         'displayName' => $player['display_name'] ?: $player['discord_username'],
         'avatarUrl' => $avatar,
         'whitelistedAt' => $player['whitelisted_at'],
-        'character' => [
-            'first_name' => $player['first_name'] ?? '',
-            'last_name' => $player['last_name'] ?? '',
-            'age_character' => $player['character_age'] ?? '',
-            'rp_born' => $player['born'] ?? '',
-            'rp_experience' => $player['experience'] ?? '',
-            'rp_story' => $player['story'] ?? '',
-        ],
+        'character' => characterSheet($player),
         'minecraft' => [
             'username' => $player['mc_username'] ?? '',
             'uuid' => $player['mc_uuid'] ?? '',
