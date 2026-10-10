@@ -1,10 +1,22 @@
 // --- Import ---
-import { toast } from "./modules/toast.js";
+import { api } from "./modules/api.js";
+import { renderPosts } from "./modules/posts.js";
 
-// --- EventListener ---
-document.querySelectorAll(".see-more").forEach((link) => {
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-    toast("Fonctionnalité pas encore disponible.");
+// --- Init ---
+const lists = {
+  actus: document.querySelector("#actus-list"),
+  devlog: document.querySelector("#devlog-list"),
+};
+
+api("posts.php?categories=actus,devlog")
+  .then(({ posts }) => {
+    for (const [category, list] of Object.entries(lists)) {
+      const categoryPosts = posts.filter((post) => post.category === category);
+      if (categoryPosts.length) {
+        renderPosts(list, categoryPosts);
+      }
+    }
+  })
+  .catch(() => {
+    // Serveur indisponible : on garde le contenu par défaut
   });
-});

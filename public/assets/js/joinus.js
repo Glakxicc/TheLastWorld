@@ -1,18 +1,40 @@
 // --- Import ---
+import { api, API_BASE } from "./modules/api.js";
 import { toast } from "./modules/toast.js";
-
-// --- Config ---
-// Live Server ne sait pas exécuter le PHP : on passe alors par `php -S localhost:8000`
-const API_URL =
-  window.location.port === "5500"
-    ? "http://localhost:8000/api/formulaire.php"
-    : "/api/formulaire.php";
 
 // --- Variable ---
 const form = document.querySelector("#whitelist-form");
 const submitBtn = document.querySelector("#send-form");
 const toggles = document.querySelectorAll(".toggle");
-const loginBtn = document.querySelector("#login");
+const loginLink = document.querySelector("#login");
+
+const LOGIN_MESSAGES = {
+  "non-whitelist": "Ce compte Discord n'est pas encore whitelisté par le staff.",
+  annulee: "Connexion annulée.",
+  erreur: "La connexion avec Discord a échoué, réessayez.",
+  "erreur-session": "Session expirée pendant la connexion : autorisez les cookies puis réessayez.",
+  "erreur-discord": "Discord a refusé la connexion. Prévenez le staff si cela continue.",
+  "erreur-serveur": "Le site rencontre un problème. Prévenez le staff si cela continue.",
+  indisponible: "La connexion n'est pas encore disponible.",
+};
+
+// --- Connexion ---
+loginLink.href = `${API_BASE}/api/auth/login.php`;
+
+const loginResult = new URLSearchParams(window.location.search).get("connexion");
+if (LOGIN_MESSAGES[loginResult]) {
+  toast(LOGIN_MESSAGES[loginResult], "error", 4000);
+  history.replaceState(null, "", window.location.pathname);
+}
+
+api("me.php")
+  .then(({ loggedIn }) => {
+    if (loggedIn) {
+      loginLink.textContent = "Mon espace";
+      loginLink.href = "./dashboard.html";
+    }
+  })
+  .catch(() => {});
 
 // --- EventListener ---
 toggles.forEach((button) => {
@@ -25,10 +47,6 @@ toggles.forEach((button) => {
       1300,
     );
   });
-});
-
-loginBtn.addEventListener("click", () => {
-  toast("Fonctionnalité pas encore disponible.");
 });
 
 form.addEventListener("submit", async (event) => {
@@ -48,26 +66,18 @@ form.addEventListener("submit", async (event) => {
     toast("Vous devez remplir tout le formulaire.", "error");
     return;
   }
+  if (!/^\d{17,20}$/.test(payload.discord_id)) {
+    toast("L'identifiant Discord doit contenir 17 à 20 chiffres.", "error", 4000);
+    return;
+  }
 
   submitBtn.disabled = true;
   try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data.error || "Erreur serveur.");
-    }
-
+    await api("formulaire.php", { method: "POST", body: payload });
     form.reset();
     toast("Informations envoyées au staff sur le Discord.", "success");
   } catch (err) {
-    const message =
-      err instanceof TypeError ? "Impossible de contacter le serveur." : err.message;
-    toast(message, "error");
+    toast(err.message, "error");
   } finally {
     submitBtn.disabled = false;
   }

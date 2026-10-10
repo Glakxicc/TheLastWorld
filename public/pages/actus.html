@@ -6,8 +6,6 @@
     <title>TheLastWorld - Actus</title>
     <link rel="icon" href="../assets/favicon/logo-noback.ico" type="image/x-icon" />
     <script src="https://cdn.jsdelivr.net/gh/leonardosnt/mc-player-counter/dist/mc-player-counter.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.css" />
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.js"></script>
     <link rel="stylesheet" href="../assets/css/styles.css" />
     <script type="module" src="../assets/js/main.js"></script>
     <script type="module" src="../assets/js/actus.js"></script>
@@ -20,6 +18,7 @@
         <li><a class="active" aria-current="page" href="../pages/actus.html">Actus - Devlogs</a></li>
         <li><a href="../pages/lore.html">Lore</a></li>
         <li><a href="../pages/joinus.html">Nous rejoindre</a></li>
+        <li><a href="../pages/dashboard.html">Mon espace</a></li>
       </ul>
     </nav>
     <header class="hero hero--large hero--actus">
@@ -29,6 +28,7 @@
       </div>
       <div class="hero-right">
         <div class="status-card">
+          <span class="server-status" data-server-status hidden></span>
           <p class="player-count">
             Joueurs connectés :
             <span
@@ -50,32 +50,28 @@
     <main class="main-actus">
       <section class="news news--left">
         <h2>Actus</h2>
-        <div class="news-list">
+        <div class="news-list" id="actus-list">
           <article class="news-item">
             <h3>Pas d'actus</h3>
             <p>Rien</p>
-            <a class="see-more" href="#">Voir plus..</a>
-          </article>
+                      </article>
           <article class="news-item">
             <h3>Pas d'actus</h3>
             <p>Rien</p>
-            <a class="see-more" href="#">Voir plus..</a>
-          </article>
+                      </article>
         </div>
       </section>
       <section class="news news--right">
         <h2>DevLogs</h2>
-        <div class="news-list">
+        <div class="news-list" id="devlog-list">
           <article class="news-item">
             <h3>1</h3>
             <p>Dev en cours</p>
-            <a class="see-more" href="#">Voir plus..</a>
-          </article>
+                      </article>
           <article class="news-item">
             <h3>2</h3>
             <p>Rien..</p>
-            <a class="see-more" href="#">Voir plus..</a>
-          </article>
+                      </article>
         </div>
       </section>
     </main>

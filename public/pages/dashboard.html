@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TheLastWorld - Mon espace</title>
+    <link rel="icon" href="../assets/favicon/logo-noback.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/leonardosnt/mc-player-counter/dist/mc-player-counter.min.js" defer></script>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/dashboard.css" />
+    <script type="module" src="../assets/js/main.js"></script>
+    <script type="module" src="../assets/js/dashboard.js"></script>
+  </head>
+  <body class="loading">
+    <nav class="navbar">
+      <h1 class="site-title">TheLastWorld</h1>
+      <ul class="navlink">
+        <li><a href="../index.html">Accueil</a></li>
+        <li><a href="../pages/actus.html">Actus - Devlogs</a></li>
+        <li><a href="../pages/lore.html">Lore</a></li>
+        <li><a href="../pages/joinus.html">Nous rejoindre</a></li>
+        <li><a class="active" aria-current="page" href="../pages/dashboard.html">Mon espace</a></li>
+      </ul>
+    </nav>
+    <header class="hero hero--compact hero--dashboard">
+      <div class="hero-title">
+        <h2>TLW - MON ESPACE</h2>
+        <div class="social-links social-links--title">
+          <a href="https://discord.gg/pVRKZFzABT" target="_blank" rel="noopener" aria-label="Rejoindre le Discord">
+            <img src="../assets/icon/discord.png" alt="Discord" />
+          </a>
+          <a href="https://www.youtube.com/channel/UCitpLqI-Hp727HKJKPHxCLg" target="_blank" rel="noopener" aria-label="Chaîne YouTube">
+            <img src="../assets/icon/youtube.png" alt="YouTube" />
+          </a>
+        </div>
+      </div>
+    </header>
+    <div class="separator" aria-hidden="true"></div>
+
+    <main class="dashboard">
+      <section class="card profile">
+        <img id="player-avatar" class="avatar" alt="" hidden />
+        <div class="profile-info">
+          <div class="player-heading">
+            <h2 id="player-name">…</h2>
+            <span id="player-rank" class="rank-badge" hidden></span>
+          </div>
+          <span id="player-username"></span>
+          <p id="whitelist-info"></p>
+        </div>
+        <button type="button" id="logout">Se déconnecter</button>
+      </section>
+
+      <section class="card server">
+        <h2>Serveur</h2>
+        <div class="server-line">
+          <span class="server-status" data-server-status hidden></span>
+          <span>
+            Joueurs connectés :
+            <span
+              data-playercounter-ip="45.140.164.183:25645"
+              data-playercounter-format="{online} / {max} 🟢">Hors ligne 🔴</span>
+          </span>
+        </div>
+        <p class="server-address">
+          Adresse : <code id="server-address">…</code>
+          <button type="button" id="copy-address" hidden>Copier</button>
+        </p>
+
+        <h3>Mon compte Minecraft</h3>
+        <div class="mc-account">
+          <img id="mc-head" class="mc-head" alt="" hidden />
+          <div>
+            <strong id="mc-name">Non renseigné</strong>
+            <span id="mc-online" class="mc-online" hidden></span>
+          </div>
+        </div>
+        <dl class="stats" id="mc-stats">
+          <div><dt>Temps de jeu</dt><dd id="stat-playtime">—</dd></div>
+          <div><dt>Dernière connexion</dt><dd id="stat-last-seen">—</dd></div>
+          <div><dt>Morts</dt><dd id="stat-deaths">—</dd></div>
+          <div><dt>Monstres tués</dt><dd id="stat-mob-kills">—</dd></div>
+          <div><dt>Joueurs tués</dt><dd id="stat-player-kills">—</dd></div>
+        </dl>
+        <p class="hint" id="stats-hint"></p>
+
+        <h3>À compléter</h3>
+        <ul class="checklist">
+          <li id="check-minecraft">Pseudo Minecraft</li>
+          <li id="check-character">Fiche personnage complète</li>
+          <li id="check-skin">Skin du personnage</li>
+        </ul>
+        <form id="profile-form" class="profile-form" novalidate>
+          <div class="input-box">
+            <input type="text" name="mc_username" id="mc_username" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" />
+            <label for="mc_username">Pseudo Minecraft</label>
+          </div>
+          <div class="input-box">
+            <input type="url" name="skin_url" id="skin_url" maxlength="256" placeholder="https://namemc.com/skin/…" />
+            <label for="skin_url">Lien du skin du personnage</label>
+          </div>
+          <button type="submit" id="save-profile">Enregistrer</button>
+        </form>
+      </section>
+
+      <section class="card character">
+        <h2>Fiche personnage</h2>
+        <form id="character-form" novalidate>
+          <div class="input-box">
+            <input type="text" name="first_name" id="first_name" maxlength="64" required />
+            <label for="first_name">Prénom</label>
+          </div>
+          <div class="input-box">
+            <input type="text" name="last_name" id="last_name" maxlength="64" required />
+            <label for="last_name">Nom</label>
+          </div>
+          <div class="input-box">
+            <input type="number" name="age_character" id="age_character" min="0" max="9999" required />
+            <label for="age_character">Âge</label>
+          </div>
+          <div class="input-box">
+            <input type="text" name="rp_born" id="rp_born" maxlength="128" required />
+            <label for="rp_born">Lieu de naissance</label>
+          </div>
+          <div class="input-box input-box--wide">
+            <textarea name="rp_experience" id="rp_experience" maxlength="1024" required></textarea>
+            <label for="rp_experience">Expérience RP</label>
+          </div>
+          <div class="input-box input-box--wide">
+            <textarea name="rp_story" id="rp_story" maxlength="1024" required></textarea>
+            <label for="rp_story">Histoire du personnage</label>
+          </div>
+          <button type="submit" id="save-character">Enregistrer</button>
+        </form>
+      </section>
+
+      <section class="card news-card">
+        <h2>Annonces membres</h2>
+        <div id="members-news" class="members-news">
+          <p class="hint">Aucune annonce pour le moment.</p>
+        </div>
+      </section>
+
+      <section class="card staff-panel" id="staff-panel" hidden>
+        <h2>Panneau staff</h2>
+        <div class="staff-tabs" role="tablist">
+          <button type="button" role="tab" aria-selected="true" aria-controls="staff-applications">
+            Candidatures <span class="count" id="staff-applications-count"></span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="staff-whitelist">
+            Whitelist <span class="count" id="staff-players-count"></span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="staff-posts">Publications</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="staff-status">Statut</button>
+        </div>
+
+        <div class="staff-tab" id="staff-applications" role="tabpanel">
+          <div class="staff-list" id="staff-applications-list"></div>
+        </div>
+
+        <div class="staff-tab" id="staff-whitelist" role="tabpanel" hidden>
+          <form class="staff-form staff-form--inline" id="staff-whitelist-form" novalidate>
+            <div class="input-box">
+              <input type="text" name="player" id="staff-player" inputmode="numeric" maxlength="20" pattern="\d{17,20}" placeholder="Ex. 123456789012345678" required />
+              <label for="staff-player">Identifiant Discord</label>
+            </div>
+            <button type="submit" class="accept">Whitelister</button>
+          </form>
+          <div class="staff-list" id="staff-players-list"></div>
+        </div>
+
+        <div class="staff-tab" id="staff-posts" role="tabpanel" hidden>
+          <form class="staff-form" id="staff-post-form" novalidate>
+            <div class="input-box">
+              <select name="category" id="staff-post-category">
+                <option value="actus">Actus</option>
+                <option value="devlog">DevLogs</option>
+                <option value="membres">Annonces membres</option>
+              </select>
+              <label for="staff-post-category">Catégorie</label>
+            </div>
+            <div class="input-box" id="staff-post-target" hidden>
+              <select name="targetPlayerId" id="staff-post-target-select">
+                <option value="0">Tous les membres</option>
+              </select>
+              <label for="staff-post-target-select">Destinataire</label>
+            </div>
+            <div class="input-box input-box--wide">
+              <input type="text" name="title" id="staff-post-title" maxlength="256" required />
+              <label for="staff-post-title">Titre</label>
+            </div>
+            <div class="input-box input-box--wide">
+              <textarea name="content" id="staff-post-content" maxlength="4000" required></textarea>
+              <label for="staff-post-content">Contenu</label>
+            </div>
+            <button type="submit" class="accept">Publier</button>
+          </form>
+          <div class="staff-list" id="staff-posts-list"></div>
+        </div>
+
+        <div class="staff-tab" id="staff-status" role="tabpanel" hidden>
+          <p>Statut affiché sur le site : <strong id="staff-status-current">…</strong></p>
+          <div class="staff-actions">
+            <button type="button" class="accept" data-status="open">Ouvrir</button>
+            <button type="button" class="refuse" data-status="closed">Fermer</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    <footer>
+      <address class="credit">
+        Licence Copyright © TheLastWorld - Tout droit réservé. <br />
+        Créateur : Riroute | Développeur : Glakxic
+      </address>
+    </footer>
+  </body>
+</html>

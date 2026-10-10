@@ -20,6 +20,7 @@
         <li><a href="../pages/actus.html">Actus - Devlogs</a></li>
         <li><a href="../pages/lore.html">Lore</a></li>
         <li><a class="active" aria-current="page" href="../pages/joinus.html">Nous rejoindre</a></li>
+        <li><a href="../pages/dashboard.html">Mon espace</a></li>
       </ul>
     </nav>
     <header class="hero hero--compact hero--joinus">
@@ -46,11 +47,16 @@
             Il est le seul et unique formulaire qui vous permettra de rejoindre
             l’aventure sur le serveur Minecraft. <br />
             <br />
-            Il est important de vous créer un compte sur le site ainsi que de
-            rejoindre le discord.
+            Il est important de rejoindre le Discord. Une fois accepté par le
+            staff, connectez-vous avec votre compte Discord pour accéder à
+            votre espace joueur. <br />
+            <br />
+            <strong>Identifiant Discord :</strong> Paramètres → Avancés →
+            activer le Mode développeur, puis clic droit sur votre profil →
+            « Copier l'identifiant utilisateur ».
           </p>
         </div>
-        <button type="button" id="login">Se Connecter</button>
+        <a id="login" href="/api/auth/login.php">Se connecter avec Discord</a>
       </aside>
 
       <form id="whitelist-form" novalidate>
@@ -63,12 +69,12 @@
         <div class="input-container">
           <div class="input-box">
             <input type="text" name="discord" id="discord" maxlength="64" required />
-            <label for="discord">Discord</label>
+            <label for="discord">Utilisateur</label>
           </div>
 
           <div class="input-box">
-            <input type="number" name="age_irl" id="age_irl" min="0" max="120" required />
-            <label for="age_irl">Âge IRL</label>
+            <input type="text" name="discord_id" id="discord_id" inputmode="numeric" minlength="17" maxlength="20" pattern="\d{17,20}" placeholder="Ex. 123456789012345678" required />
+            <label for="discord_id">Identifiant Discord</label>
           </div>
 
           <div class="input-box">
@@ -82,11 +88,16 @@
           </div>
 
           <div class="input-box">
+            <input type="number" name="age_irl" id="age_irl" min="0" max="120" required />
+            <label for="age_irl">Âge IRL</label>
+          </div>
+
+          <div class="input-box">
             <input type="number" name="age_character" id="age_character" min="0" max="9999" required />
             <label for="age_character">Âge Personnage</label>
           </div>
 
-          <div class="input-box">
+          <div class="input-box input-box--wide">
             <input type="text" name="rp_born" id="rp_born" maxlength="128" required />
             <label for="rp_born">Lieu de Naissance</label>
           </div>

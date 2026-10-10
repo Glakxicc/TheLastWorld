@@ -1,72 +1,18 @@
 <?php
-// Reçoit le formulaire de whitelist, le valide et l'envoie au Discord du staff.
+// Reçoit le formulaire de whitelist, l'enregistre et l'envoie au Discord du staff.
 
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
-
-// --- Config ---
+require __DIR__ . '/lib/bootstrap.php';
 
 const RATE_LIMIT_WINDOW = 600; // secondes
 const RATE_LIMIT_MAX = 5;
-const MAX_BODY_SIZE = 16384;
 
-// Champs du formulaire whitelist (clé envoyée par le client => libellé Discord)
-const FORM_FIELDS = [
-    ['key' => 'discord', 'label' => 'Discord', 'maxLength' => 64],
-    ['key' => 'age_irl', 'label' => 'Âge IRL', 'maxLength' => 3, 'numeric' => true],
-    ['key' => 'first_name', 'label' => 'Prénom Personnage', 'maxLength' => 64],
-    ['key' => 'last_name', 'label' => 'Nom Personnage', 'maxLength' => 64],
-    ['key' => 'age_character', 'label' => 'Âge RP', 'maxLength' => 4, 'numeric' => true],
-    ['key' => 'rp_born', 'label' => 'Lieu de naissance', 'maxLength' => 128],
-    ['key' => 'rp_experience', 'label' => 'Expérience RP', 'maxLength' => 1024],
-    ['key' => 'rp_story', 'label' => 'Histoire du Personnage', 'maxLength' => 1024],
-];
-
-const FORM_TOGGLES = [
-    ['key' => 'illegal', 'label' => 'RP Rebelle ?'],
-    ['key' => 'staff', 'label' => 'Demande à être staff ?'],
-];
-
-$config = is_file(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
-$webhookUrl = $config['discord_webhook_url'] ?? '';
-$allowedOrigins = $config['allowed_origins'] ?? [];
-
-// --- CORS ---
-// Inutile en production (même domaine), sert pour tester depuis Live Server
-
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
-    header("Access-Control-Allow-Origin: $origin");
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
-    header('Vary: Origin');
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
-
-// --- Requête ---
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond(405, ['success' => false, 'error' => 'Méthode non autorisée.']);
-}
-
-if ($webhookUrl === '') {
-    error_log('formulaire.php : discord_webhook_url manquant dans config.php');
-    respond(503, ['success' => false, 'error' => 'Formulaire indisponible.']);
-}
-
-$raw = file_get_contents('php://input', false, null, 0, MAX_BODY_SIZE + 1);
-$body = strlen((string) $raw) <= MAX_BODY_SIZE ? json_decode((string) $raw, true) : null;
-if (!is_array($body)) {
-    respond(400, ['success' => false, 'error' => 'Requête invalide.']);
-}
+allowMethods('POST');
+$body = readJsonBody();
 
 if (!checkRateLimit($_SERVER['REMOTE_ADDR'] ?? 'unknown')) {
-    respond(429, ['success' => false, 'error' => 'Trop de demandes, réessayez dans quelques minutes.']);
+    fail(429, 'Trop de demandes, réessayez dans quelques minutes.');
 }
 
 // Honeypot : un humain ne remplit jamais ce champ caché
@@ -74,104 +20,73 @@ if (!empty($body['website'])) {
     respond(200, ['success' => true]);
 }
 
-[$values, $error] = validateForm($body);
+[$values, $error] = validateFields($body, FORM_FIELDS);
 if ($error !== null) {
-    respond(400, ['success' => false, 'error' => $error]);
+    fail(400, $error);
+}
+foreach (FORM_TOGGLES as $toggle) {
+    $values[$toggle['key']] = ($body[$toggle['key']] ?? false) === true;
 }
 
-if (!sendToDiscord($webhookUrl, $values)) {
-    respond(502, [
-        'success' => false,
-        'error' => 'Impossible de transmettre le formulaire. Réessayez plus tard.',
-    ]);
+// Si la base est indisponible, le formulaire part quand même (sans boutons)
+try {
+    db()->prepare('INSERT INTO applications (discord_username, data, created_at) VALUES (?, ?, ?)')
+        ->execute([normalizeUsername($values['discord']), json_encode($values, JSON_UNESCAPED_UNICODE), now()]);
+    $applicationId = (int) db()->lastInsertId();
+} catch (PDOException $err) {
+    error_log('formulaire.php : candidature non enregistrée : ' . $err->getMessage());
+    $applicationId = null;
+}
+
+if (!sendApplication($applicationId, $values)) {
+    fail(502, 'Impossible de transmettre le formulaire. Réessayez plus tard.');
 }
 
 respond(200, ['success' => true]);
 
 // --- Helpers ---
 
-function respond(int $status, array $body): void
+/**
+ * Avec le bot configuré : message avec boutons Accepter/Refuser dans le salon du staff.
+ * Sinon : simple webhook (sans boutons).
+ */
+function sendApplication(?int $applicationId, array $values): bool
 {
-    http_response_code($status);
-    echo json_encode($body, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-function textLength(string $value): int
-{
-    return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
-}
-
-function validateForm(array $body): array
-{
-    $values = [];
-
-    foreach (FORM_FIELDS as $field) {
-        $raw = $body[$field['key']] ?? '';
-        $value = is_scalar($raw) ? trim((string) $raw) : '';
-        $label = $field['label'];
-
-        if ($value === '') {
-            return [null, "Le champ « $label » est requis."];
-        }
-        if (textLength($value) > $field['maxLength']) {
-            return [null, "Le champ « $label » est trop long."];
-        }
-        if (!empty($field['numeric']) && !ctype_digit($value)) {
-            return [null, "Le champ « $label » doit être un nombre."];
-        }
-        $values[$field['key']] = $value;
-    }
-
-    foreach (FORM_TOGGLES as $toggle) {
-        $values[$toggle['key']] = ($body[$toggle['key']] ?? false) === true;
-    }
-
-    return [$values, null];
-}
-
-function sendToDiscord(string $webhookUrl, array $values): bool
-{
-    $fields = [];
-    foreach (FORM_FIELDS as $field) {
-        $fields[] = [
-            'name' => $field['label'],
-            'value' => $values[$field['key']],
-            'inline' => $field['maxLength'] < 1024,
-        ];
-    }
-    foreach (FORM_TOGGLES as $toggle) {
-        $fields[] = [
-            'name' => $toggle['label'],
-            'value' => $values[$toggle['key']] ? 'Oui' : 'Non',
-            'inline' => true,
-        ];
-    }
-
-    $payload = json_encode([
+    $discord = config()['discord'] ?? [];
+    $message = [
         'allowed_mentions' => ['parse' => []],
-        'embeds' => [[
-            'title' => 'Formulaire TLW',
-            'description' => 'Formulaire du site',
-            'color' => 0xff4242,
-            'fields' => $fields,
-            'timestamp' => gmdate('c'),
-        ]],
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        'embeds' => [applicationEmbed($values)],
+    ];
 
-    $curl = curl_init($webhookUrl);
-    curl_setopt_array($curl, [
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => $payload,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 10,
-    ]);
-    $response = curl_exec($curl);
-    $status = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    if (!empty($discord['bot_token']) && !empty($discord['forms_channel_id'])) {
+        if ($applicationId !== null) {
+            $message['components'] = applicationButtons($applicationId);
+        }
+        [$status, $sent] = discordBot('POST', "/channels/{$discord['forms_channel_id']}/messages", $message);
 
-    if ($response === false || $status < 200 || $status >= 300) {
-        error_log("formulaire.php : Discord a répondu $status " . curl_error($curl));
+        // Pour mettre à jour ce message quand la décision est prise depuis le site
+        if ($applicationId !== null && !empty($sent['id'])) {
+            db()->prepare('UPDATE applications SET discord_message_id = ? WHERE id = ?')
+                ->execute([$sent['id'], $applicationId]);
+        }
+    } elseif (!empty(config()['discord_webhook_url'])) {
+        $curl = curl_init(config()['discord_webhook_url']);
+        curl_setopt_array($curl, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+        ]);
+        curl_exec($curl);
+        $status = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    } else {
+        error_log('formulaire.php : ni bot ni webhook configuré dans config.php');
+        return false;
+    }
+
+    if ($status < 200 || $status >= 300) {
+        error_log("formulaire.php : Discord a répondu $status");
         return false;
     }
     return true;
@@ -180,12 +95,11 @@ function sendToDiscord(string $webhookUrl, array $values): bool
 // Limiteur par IP, stocké dans data/ratelimit.json
 function checkRateLimit(string $ip): bool
 {
-    $dir = __DIR__ . '/data';
-    if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+    if (!is_dir(DATA_DIR) && !mkdir(DATA_DIR, 0755, true)) {
         return true;
     }
 
-    $handle = fopen("$dir/ratelimit.json", 'c+');
+    $handle = fopen(DATA_DIR . '/ratelimit.json', 'c+');
     if ($handle === false) {
         return true;
     }

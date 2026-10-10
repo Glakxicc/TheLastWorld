@@ -1,0 +1,411 @@
+body.loading .dashboard {
+  visibility: hidden;
+}
+
+/* Serveur et Fiche personnage côte à côte, à la même hauteur */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: 2rem;
+}
+
+.card {
+  padding: 1.5rem 2rem;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+  margin: 0 0 1rem;
+  font-size: 40px;
+}
+
+.hint {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* --- Profil --- */
+
+.profile {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 3px solid var(--color-text);
+}
+
+.profile-info h2 {
+  margin: 0;
+}
+
+.player-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Rang = rôle Discord le plus haut, dans sa couleur */
+.rank-badge {
+  padding: 3px 12px;
+  border: 2px solid var(--rank-color, var(--color-text));
+  border-radius: 999px;
+  color: var(--rank-color, var(--color-text));
+  font-size: 16px;
+}
+
+.profile-info p {
+  margin: 0.5rem 0 0;
+  color: var(--color-success);
+}
+
+#logout {
+  margin-left: auto;
+  background-color: var(--color-accent);
+}
+
+#logout:hover {
+  background-color: #ff4242dc;
+}
+
+/* --- Serveur --- */
+
+.card h3 {
+  margin: 1.5rem 0 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: 22px;
+}
+
+.server-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  font-size: 20px;
+}
+
+.server-address {
+  font-size: 20px;
+}
+
+.mc-account {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mc-head {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.mc-account strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 10;
+}
+
+.mc-online {
+  font-size: 14px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+}
+
+.stats div {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border-soft);
+  background-color: var(--color-surface);
+}
+
+.stats dt {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.stats dd {
+  margin: 0.25rem 0 0;
+  font-size: 18px;
+}
+
+.checklist {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.checklist li {
+  margin: 0.4rem 0;
+}
+
+.checklist li::before {
+  content: "✘ ";
+  color: var(--color-accent);
+}
+
+.checklist li.done::before {
+  content: "✔ ";
+  color: var(--color-success);
+}
+
+.checklist li.done {
+  opacity: 0.7;
+}
+
+.profile-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 21px 12px;
+  padding-top: 10px;
+}
+
+#save-profile {
+  grid-column: 1 / -1;
+  justify-self: end;
+  width: 225px;
+  height: 56px;
+  text-align: right;
+  background-color: var(--color-success);
+}
+
+#save-profile:hover {
+  background-color: #25d940c6;
+}
+
+#save-profile:disabled {
+  opacity: 0.6;
+}
+
+.server-address code {
+  padding: 2px 8px;
+  background-color: var(--color-surface);
+  font-family: monospace;
+}
+
+#copy-address {
+  margin-left: 0.5rem;
+  height: auto;
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
+/* --- Fiche personnage --- */
+
+
+#character-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 21px 12px;
+  padding-top: 10px;
+}
+
+#save-character {
+  grid-column: 1 / -1;
+  justify-self: end;
+  width: 225px;
+  height: 56px;
+  text-align: right;
+  background-color: var(--color-success);
+}
+
+#save-character:hover {
+  background-color: #25d940c6;
+}
+
+#save-character:disabled {
+  opacity: 0.6;
+}
+
+/* --- Annonces membres (pleine largeur, comme le profil) --- */
+
+.news-card {
+  grid-column: 1 / -1;
+}
+
+.members-news {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.members-news .news-item {
+  width: auto;
+}
+
+.members-news .news-item h3,
+.members-news .news-item p,
+.members-news .news-item a {
+  margin: 0 1rem;
+}
+
+.members-news .news-item a {
+  align-self: flex-end;
+  padding: 0 0 0.5rem;
+}
+
+.members-news .post-badge {
+  margin: 1rem 1rem 0;
+}
+
+/* --- Panneau staff --- */
+
+.staff-panel {
+  grid-column: 1 / -1;
+  border-color: var(--color-accent);
+}
+
+.staff-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 3px solid;
+}
+
+.staff-tabs [role="tab"] {
+  height: auto;
+  background: none;
+  color: var(--color-text);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -3px;
+}
+
+.staff-tabs [role="tab"]:hover {
+  background: none;
+  color: var(--color-accent);
+}
+
+.staff-tabs [aria-selected="true"] {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.count:not(:empty) {
+  margin-left: 4px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.staff-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 21px 12px;
+  padding-top: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.staff-form--inline {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+}
+
+.staff-form > button {
+  grid-column: 1 / -1;
+  justify-self: end;
+  width: 225px;
+  height: 56px;
+  text-align: right;
+}
+
+.staff-form--inline > button {
+  grid-column: auto;
+}
+
+.staff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.staff-item {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border-soft);
+  background-color: var(--color-surface);
+}
+
+.staff-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.staff-item small {
+  opacity: 0.7;
+}
+
+.staff-item summary {
+  cursor: pointer;
+}
+
+.application-details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1rem;
+  margin: 1rem 0;
+  font-size: 14px;
+}
+
+.application-details dt {
+  opacity: 0.7;
+}
+
+.application-details dd {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.staff-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.staff-row .refuse,
+.staff-actions button {
+  height: auto;
+  padding: 6px 14px;
+  font-size: 16px;
+}
+
+button.accept {
+  background-color: var(--color-success);
+}
+button.accept:hover {
+  background-color: #25d940c6;
+}
+
+button.refuse {
+  background-color: var(--color-accent);
+}
+button.refuse:hover {
+  background-color: #ff4242dc;
+}
+
+.staff-panel button:disabled {
+  opacity: 0.5;
+}
+
+.post-tag {
+  padding: 1px 8px;
+  border: 1px solid var(--color-border-soft);
+  font-size: 12px;
+}

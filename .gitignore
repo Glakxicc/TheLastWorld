@@ -6,4 +6,10 @@ donne.json
 
 # Contient le webhook Discord
 public/api/config.php
-public/api/data/*.json
+config.local.php
+public/api/data/*
+!public/api/data/.htaccess
+
+# Plugin Minecraft compilé
+minecraft-plugin/build/
+minecraft-plugin/target/

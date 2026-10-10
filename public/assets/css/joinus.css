@@ -1,7 +1,6 @@
 .form-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  max-height: 546px;
   margin: 2rem;
   padding: 2rem;
   border: 1px solid var(--color-border-soft);
@@ -23,6 +22,11 @@
   font-size: 64px;
 }
 
+.paragraph-box strong {
+  font-weight: 10;
+  color: var(--color-accent);
+}
+
 .paragraph-box p {
   width: 336px;
   padding-left: 5px;
@@ -32,23 +36,18 @@
 
 /* --- Buttons --- */
 
-button {
-  height: 38px;
-  padding: 10px;
-  border: none;
-  background-color: #d9d9d9;
-  color: #000;
+#login {
+  display: inline-block;
+  padding: 10px 14px;
+  background-color: var(--color-discord);
+  color: var(--color-text);
   font-size: 20px;
-  text-align: left;
   transition: background-color var(--transition);
 }
 
-#login {
-  width: 225px;
-}
-
 #login:hover {
-  background-color: #d9d9d9af;
+  background-color: #4752c4;
+  color: var(--color-text);
 }
 
 .toggle,
@@ -99,52 +98,15 @@ form {
 .input-container {
   display: grid;
   gap: 21px 12px;
-  grid-template-rows: 56px 56px 56px 120px 120px;
+  grid-template-rows: 56px 56px 56px 56px 120px 120px;
 }
 
 .button-container > :last-child {
-  grid-row: 5;
+  grid-row: 6;
 }
 
 .input-container {
   grid-template-columns: 1fr 1fr;
-}
-
-.input-box {
-  position: relative;
-}
-
-.input-box--wide {
-  grid-column: 1 / -1;
-}
-
-.input-box label {
-  position: absolute;
-  top: -10px;
-  left: 10px;
-  margin: 0;
-  color: var(--color-text);
-  font-size: 16px;
-}
-
-input,
-textarea {
-  box-sizing: border-box;
-  width: 100%;
-  height: 56px;
-  border: 1px solid #000;
-  border-radius: 4px;
-  background-color: #2b2b2b;
-  color: var(--color-text);
-  font-size: 15px;
-  line-height: 2rem;
-  overflow: hidden;
-  resize: none;
-}
-
-textarea {
-  height: 125px;
-  overflow-y: auto;
 }
 
 .honeypot {

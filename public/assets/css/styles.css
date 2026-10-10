@@ -8,6 +8,7 @@
   --color-text: #fff;
   --color-accent: #ff4242;
   --color-success: #25d940;
+  --color-discord: #5865f2;
   --color-border-soft: rgba(255, 255, 255, 0.169);
   --gutter: 4rem;
   --transition: ease-in-out 0.2s;
@@ -139,6 +140,9 @@ a:hover {
 .hero--joinus {
   --hero-bg: url("../images/form-background1.png");
 }
+.hero--dashboard {
+  --hero-bg: url("../images/form-background2.png");
+}
 
 .hero-left {
   display: flex;
@@ -172,12 +176,34 @@ a:hover {
 }
 
 .status-card {
+  position: relative;
   display: flex;
   justify-content: center;
   width: 720px;
   height: 90px;
   border-radius: 23px;
   background-color: #303030c4;
+}
+
+/* Statut choisi par le staff avec /statut sur Discord */
+.server-status {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  font-size: 16px;
+}
+
+.status-card .server-status {
+  position: absolute;
+  top: -14px;
+  right: 24px;
+}
+
+.server-status[data-server-status="open"] {
+  border: 1px solid var(--color-success);
+}
+.server-status[data-server-status="closed"] {
+  border: 1px solid var(--color-accent);
 }
 
 .player-count {
@@ -323,6 +349,97 @@ main {
   padding-top: 1rem;
 }
 
+.news-item time {
+  margin: 0 1rem;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* Aperçu sur 3 lignes ; « Voir plus » ouvre la publication en grand */
+.news-item p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.post-badge {
+  align-self: flex-start;
+  margin: 1rem 1rem 0;
+  padding: 2px 10px;
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  color: var(--color-accent);
+  font-size: 12px;
+}
+
+/* --- Publication agrandie --- */
+
+.post-modal {
+  width: min(760px, 90vw);
+  max-height: 80vh;
+  padding: 0;
+  border: 1px solid var(--color-border-soft);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.post-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.post-modal-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-height: 80vh;
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
+}
+
+.post-modal .post-badge {
+  margin: 0 0 1rem;
+}
+
+.post-modal-title {
+  margin: 0 2.5rem 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid;
+  font-size: 32px;
+}
+
+.post-modal time {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.post-modal-content {
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: justify;
+  white-space: pre-line;
+}
+
+.post-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  height: auto;
+  padding: 4px 8px;
+  background: none;
+  color: var(--color-text);
+  font-size: 24px;
+}
+
+.post-modal-close:hover {
+  background: none;
+  color: var(--color-accent);
+}
+
 .news--left {
   align-items: start;
 }
@@ -355,6 +472,65 @@ main {
 }
 .news--right .news-item a {
   margin-right: 32.5rem;
+}
+
+/* --- Forms --- */
+
+button {
+  height: 38px;
+  padding: 10px;
+  border: none;
+  background-color: #d9d9d9;
+  color: #000;
+  font-size: 20px;
+  text-align: left;
+  transition: background-color var(--transition);
+}
+
+button:hover {
+  background-color: #d9d9d9af;
+}
+
+.input-box {
+  position: relative;
+}
+
+.input-box--wide {
+  grid-column: 1 / -1;
+}
+
+.input-box label {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 16px;
+}
+
+input,
+textarea,
+select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 56px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  background-color: #2b2b2b;
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 2rem;
+  overflow: hidden;
+  resize: none;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+textarea {
+  height: 125px;
+  overflow-y: auto;
 }
 
 /* --- Footer --- */

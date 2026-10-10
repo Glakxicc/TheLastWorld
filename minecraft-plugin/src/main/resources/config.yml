@@ -1,0 +1,8 @@
+# Adresse qui reçoit les statistiques sur le site
+url: "https://www.thelastworld.fr/api/minecraft/stats.php"
+
+# Clé secrète : la même que minecraft.stats_token dans api/config.php du site
+token: ""
+
+# Envoi des statistiques des joueurs connectés toutes les X secondes (minimum 60)
+interval-seconds: 300
