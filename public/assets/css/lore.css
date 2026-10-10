@@ -1,0 +1,44 @@
+.main-lore {
+  flex-flow: column;
+}
+
+.chapter {
+  width: 100%;
+  height: fit-content;
+  margin: 0;
+  padding: 1rem;
+  color: var(--color-text);
+  background: var(--chapter-bg) center / cover;
+}
+
+.chapter--1 {
+  --chapter-bg: url("../images/lore1.png");
+}
+.chapter--2 {
+  --chapter-bg: url("../images/lore2.png");
+}
+.chapter--3 {
+  --chapter-bg: url("../images/lore3.png");
+}
+
+.chapter h2 {
+  margin: 1rem 0 0;
+  font-size: 3rem;
+}
+
+.chapter-subtitle {
+  display: block;
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.chapter-content {
+  position: relative;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.chapter p {
+  width: 50%;
+  text-align: left;
+}

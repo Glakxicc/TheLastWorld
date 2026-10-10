@@ -1,0 +1,4 @@
+# Bloque l'accès direct à la configuration (webhook) et aux données
+<FilesMatch "^config(\.example)?\.php$">
+  Require all denied
+</FilesMatch>

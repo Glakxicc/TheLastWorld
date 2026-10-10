@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TheLastWorld - Nous rejoindre</title>
+    <link rel="icon" href="../assets/favicon/logo-noback.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.js"></script>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/joinus.css" />
+    <script type="module" src="../assets/js/main.js"></script>
+    <script type="module" src="../assets/js/joinus.js"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <h1 class="site-title">TheLastWorld</h1>
+      <ul class="navlink">
+        <li><a href="../index.html">Accueil</a></li>
+        <li><a href="../pages/actus.html">Actus - Devlogs</a></li>
+        <li><a href="../pages/lore.html">Lore</a></li>
+        <li><a class="active" aria-current="page" href="../pages/joinus.html">Nous rejoindre</a></li>
+      </ul>
+    </nav>
+    <header class="hero hero--compact hero--joinus">
+      <div class="hero-title">
+        <h2>TLW - FORMULAIRE</h2>
+        <div class="social-links social-links--title">
+          <a href="https://discord.gg/pVRKZFzABT" target="_blank" rel="noopener" aria-label="Rejoindre le Discord">
+            <img src="../assets/icon/discord.png" alt="Discord" />
+          </a>
+          <a href="https://www.youtube.com/channel/UCitpLqI-Hp727HKJKPHxCLg" target="_blank" rel="noopener" aria-label="Chaîne YouTube">
+            <img src="../assets/icon/youtube.png" alt="YouTube" />
+          </a>
+        </div>
+      </div>
+    </header>
+    <div class="separator" aria-hidden="true"></div>
+
+    <div class="form-container">
+      <aside class="form-intro">
+        <div class="paragraph-box">
+          <h2>WhiteList</h2>
+          <p>
+            Voici le formulaire officiel de TLW. <br />
+            Il est le seul et unique formulaire qui vous permettra de rejoindre
+            l’aventure sur le serveur Minecraft. <br />
+            <br />
+            Il est important de vous créer un compte sur le site ainsi que de
+            rejoindre le discord.
+          </p>
+        </div>
+        <button type="button" id="login">Se Connecter</button>
+      </aside>
+
+      <form id="whitelist-form" novalidate>
+        <div class="button-container">
+          <button type="button" class="toggle" data-field="staff" aria-pressed="true">Devenir Staff ?</button>
+          <button type="button" class="toggle" data-field="illegal" aria-pressed="false">RP Rebelle ?</button>
+          <button type="submit" id="send-form">Envoyer</button>
+        </div>
+
+        <div class="input-container">
+          <div class="input-box">
+            <input type="text" name="discord" id="discord" maxlength="64" required />
+            <label for="discord">Discord</label>
+          </div>
+
+          <div class="input-box">
+            <input type="number" name="age_irl" id="age_irl" min="0" max="120" required />
+            <label for="age_irl">Âge IRL</label>
+          </div>
+
+          <div class="input-box">
+            <input type="text" name="first_name" id="first_name" maxlength="64" required />
+            <label for="first_name">Prénom Personnage</label>
+          </div>
+
+          <div class="input-box">
+            <input type="text" name="last_name" id="last_name" maxlength="64" required />
+            <label for="last_name">Nom Personnage</label>
+          </div>
+
+          <div class="input-box">
+            <input type="number" name="age_character" id="age_character" min="0" max="9999" required />
+            <label for="age_character">Âge Personnage</label>
+          </div>
+
+          <div class="input-box">
+            <input type="text" name="rp_born" id="rp_born" maxlength="128" required />
+            <label for="rp_born">Lieu de Naissance</label>
+          </div>
+
+          <div class="input-box input-box--wide">
+            <textarea name="rp_experience" id="rp_experience" maxlength="1024" required></textarea>
+            <label for="rp_experience">Expérience RP</label>
+          </div>
+
+          <div class="input-box input-box--wide">
+            <textarea name="rp_story" id="rp_story" maxlength="1024" required></textarea>
+            <label for="rp_story">Histoire du personnage RP</label>
+          </div>
+
+          <!-- Anti-spam : champ invisible pour les humains -->
+          <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        </div>
+      </form>
+    </div>
+    <footer>
+      <div class="footer-separator" aria-hidden="true"></div>
+      <address class="credit">
+        Licence Copyright © TheLastWorld - Tout droit réservé. <br />
+        Créateur : Riroute | Développeur : Glakxic
+      </address>
+    </footer>
+  </body>
+</html>

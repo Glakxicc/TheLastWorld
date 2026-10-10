@@ -1,3 +1,9 @@
+node_modules/
+.env
+.DS_Store
 .hintrc
 donne.json
-.env
+
+# Contient le webhook Discord
+public/api/config.php
+public/api/data/*.json
