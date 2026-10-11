@@ -1,8 +1,11 @@
-# Adresse qui reçoit les statistiques sur le site
+# TLWStats - configuration
+# (fichier sans accents : Mohist/Bukkit 1.12 le lit parfois avec l'encodage du systeme)
+
+# Adresse qui recoit les statistiques sur le site
 url: "https://www.thelastworld.fr/api/minecraft/stats.php"
 
-# Clé secrète : la même que minecraft.stats_token dans api/config.php du site
+# Cle secrete : la meme que minecraft.stats_token dans api/config.php du site
 token: ""
 
-# Envoi des statistiques des joueurs connectés toutes les X secondes (minimum 60)
+# Envoi des statistiques des joueurs connectes toutes les X secondes (minimum 60)
 interval-seconds: 300

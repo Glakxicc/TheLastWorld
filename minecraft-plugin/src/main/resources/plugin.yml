@@ -1,6 +1,5 @@
 name: TLWStats
-version: 1.0.0
+version: 1.1.0
 main: fr.thelastworld.stats.TLWStats
-api-version: '1.18'
 author: Glakxic
-description: Envoie les statistiques des joueurs au site TheLastWorld.
+description: Envoie les statistiques des joueurs au site TheLastWorld (Mohist 1.12.2).

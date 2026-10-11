@@ -94,7 +94,7 @@ Envoyer le contenu de `public/` à la racine de l'espace web IONOS (FTP/SFTP), a
 
 Le plugin `TLWStats` envoie au site le temps de jeu, les morts, les monstres et joueurs
 tués, la dernière connexion et la liste des joueurs en ligne (à chaque connexion /
-déconnexion et toutes les 5 minutes). Serveur Spigot, Paper ou Purpur 1.18+.
+déconnexion et toutes les 5 minutes). Prévu pour un serveur Mohist 1.12.2 (Java 8, 8u101 minimum pour le HTTPS) ; marche aussi sur Spigot/Paper 1.12.2+.
 
 1. Copier `minecraft-plugin/build/TLWStats.jar` dans le dossier `plugins/` du serveur
    et redémarrer : `plugins/TLWStats/config.yml` est créé.
