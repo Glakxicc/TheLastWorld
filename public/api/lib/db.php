@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 const SERVER_STATUSES = [
     'open' => '🟢 Ouvert',
@@ -129,6 +129,20 @@ function migrate(PDO $pdo): void
             online SMALLINT NOT NULL DEFAULT 0,
             updated_at VARCHAR(32) NOT NULL
         )$engine");
+    }
+
+    // v4 : compte Minecraft lié avec un code donné par le serveur (preuve que le joueur en est le propriétaire)
+    if ($version < 4) {
+        addColumn($pdo, 'players', 'mc_linked_at VARCHAR(32) NULL');
+        $pdo->exec("CREATE TABLE IF NOT EXISTS mc_link_codes (
+            code VARCHAR(8) PRIMARY KEY,
+            mc_uuid VARCHAR(36) NOT NULL,
+            mc_username VARCHAR(16) NOT NULL,
+            expires_at VARCHAR(32) NOT NULL,
+            created_at VARCHAR(32) NOT NULL
+        )$engine");
+        // Les pseudos saisis à la main n'ont jamais été vérifiés : chacun doit lier son compte
+        $pdo->exec('UPDATE players SET mc_username = NULL, mc_uuid = NULL WHERE mc_linked_at IS NULL');
     }
 
     setSetting('schema_version', (string) SCHEMA_VERSION, $pdo);
@@ -267,6 +281,17 @@ function whitelistedPlayers(): array
     )->fetchAll();
 }
 
+/** Statistiques de tous les joueurs vus sur le serveur, avec le compte du site lié s'il existe. */
+function serverStats(): array
+{
+    return db()->query(
+        'SELECT stats.*, players.id AS player_id, players.discord_username, players.display_name,
+                players.first_name, players.last_name, players.whitelisted
+         FROM player_stats stats LEFT JOIN players ON players.mc_uuid = stats.mc_uuid
+         ORDER BY stats.online DESC, stats.playtime_seconds DESC',
+    )->fetchAll();
+}
+
 /** Fiche personnage, avec les mêmes clés que le formulaire. */
 function characterSheet(array $player): array
 {
@@ -303,6 +328,7 @@ function publicPlayer(array $player): array
         'minecraft' => [
             'username' => $player['mc_username'] ?? '',
             'uuid' => $player['mc_uuid'] ?? '',
+            'linkedAt' => $player['mc_linked_at'] ?? null,
             'skinUrl' => $player['skin_url'] ?? '',
         ],
         'stats' => $stats ? [

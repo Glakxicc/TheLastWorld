@@ -18,8 +18,12 @@ const APPLICATION_FIELDS = {
   rp_story: "Histoire",
 };
 
+const numberFormat = new Intl.NumberFormat("fr-FR");
+
 let panel;
 let state;
+// Tri du tableau des statistiques : colonne et sens (-1 = décroissant)
+let statsSort = { key: "playtimeSeconds", direction: -1 };
 
 export async function initStaffPanel(element) {
   panel = element;
@@ -105,6 +109,21 @@ function setupForms() {
     if (state) renderPlayers();
   });
 
+  panel.querySelector("#staff-stats-search").addEventListener("input", () => {
+    if (state) renderStats();
+  });
+
+  // Clic sur un en-tête : trie par cette colonne, un second clic inverse le sens
+  panel.querySelectorAll("[data-sort]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.sort;
+      statsSort = statsSort.key === key
+        ? { key, direction: -statsSort.direction }
+        : { key, direction: key === "username" ? 1 : -1 };
+      if (state) renderStats();
+    });
+  });
+
   panel.querySelectorAll("[data-status]").forEach((button) => {
     button.addEventListener("click", () => run("status.set", { status: button.dataset.status }, button));
   });
@@ -116,6 +135,7 @@ function render(data) {
   state = data;
   renderApplications();
   renderPlayers();
+  renderStats();
   renderPosts();
   renderStatus();
 }
@@ -258,10 +278,20 @@ function playerDetails(player) {
     ? el("a", { href: minecraft.skinUrl, target: "_blank", rel: "noopener noreferrer" }, "Voir le skin")
     : "—";
   const mcInfo = infoList({
-    Pseudo: minecraft.username || "Non renseigné",
+    Pseudo: minecraft.username || "Compte non lié",
     UUID: minecraft.uuid || "—",
+    "Lié le": date(minecraft.linkedAt),
     "Skin du personnage": skin,
   });
+  let unlink = "";
+  if (minecraft.uuid) {
+    unlink = el("button", { type: "button", className: "refuse unlink" }, "Délier le compte Minecraft");
+    unlink.addEventListener("click", () => {
+      if (confirm(`Délier le compte Minecraft ${minecraft.username} de ${player.username} ? Il ne pourra plus rejoindre le serveur.`)) {
+        run("minecraft.unlink", { playerId: player.id }, unlink);
+      }
+    });
+  }
   const mcStats = stats
     ? infoList({
         "En jeu": stats.online ? "🟢 Oui" : "⚫ Non",
@@ -289,7 +319,7 @@ function playerDetails(player) {
     "div",
     { className: "player-details" },
     el("section", {}, el("h4", {}, "Discord"), discord),
-    el("section", {}, el("h4", {}, "Minecraft"), head, mcInfo, mcStats),
+    el("section", {}, el("h4", {}, "Minecraft"), head, mcInfo, mcStats, unlink),
     el("section", { className: "player-details-wide" }, el("h4", {}, "Fiche personnage"), character),
   );
 }
@@ -301,6 +331,87 @@ function infoList(entries) {
     list.append(el("dt", {}, label), el("dd", {}, value));
   }
   return list;
+}
+
+function renderStats() {
+  const all = state.serverStats;
+  const online = all.filter((stats) => stats.online);
+  const total = (key) => all.reduce((sum, stats) => sum + stats[key], 0);
+
+  panel.querySelector("#staff-stats-count").textContent = online.length ? `${online.length} 🟢` : "";
+  panel.querySelector("#staff-stats-summary").replaceChildren(
+    ...Object.entries({
+      "En jeu": numberFormat.format(online.length),
+      "Joueurs vus": numberFormat.format(all.length),
+      "Temps de jeu total": formatPlaytime(total("playtimeSeconds")),
+      Morts: numberFormat.format(total("deaths")),
+      "Monstres tués": numberFormat.format(total("mobKills")),
+      "Joueurs tués": numberFormat.format(total("playerKills")),
+    }).map(([label, value]) => el("div", {}, el("dt", {}, label), el("dd", {}, value))),
+  );
+
+  const query = normalize(panel.querySelector("#staff-stats-search").value.trim());
+  const rows = (query ? all.filter((stats) => statsSearchText(stats).includes(query)) : [...all])
+    .sort((a, b) => statsSort.direction * compareStats(a, b, statsSort.key));
+
+  const lastUpdate = all.reduce((latest, stats) => (stats.updatedAt > latest ? stats.updatedAt : latest), "");
+  panel.querySelector("#staff-stats-hint").textContent = !all.length
+    ? "Aucune statistique reçue : vérifiez que le plugin TLWStats tourne sur le serveur."
+    : [
+        query ? `${rows.length} joueur${rows.length > 1 ? "s" : ""} sur ${all.length}` : "",
+        `Dernier envoi du serveur : ${formatDate(lastUpdate)}`,
+      ].filter(Boolean).join(" · ");
+
+  panel.querySelectorAll("[data-sort]").forEach((button) => {
+    const active = button.dataset.sort === statsSort.key;
+    button.closest("th").setAttribute(
+      "aria-sort",
+      active ? (statsSort.direction > 0 ? "ascending" : "descending") : "none",
+    );
+  });
+
+  panel.querySelector("#staff-stats-list").replaceChildren(
+    ...rows.map((stats) => {
+      const { account } = stats;
+      const linked = account
+        ? [account.displayName || account.username, account.character].filter(Boolean).join(" — ")
+          + (account.whitelisted ? "" : " (plus whitelisté)")
+        : "Aucun compte du site";
+
+      return el(
+        "tr",
+        {},
+        el(
+          "td",
+          { className: "stats-player" },
+          el("img", { className: "mc-head", src: `https://mc-heads.net/avatar/${stats.uuid}/32`, alt: "", loading: "lazy" }),
+          el(
+            "div",
+            {},
+            el("strong", {}, `${stats.online ? "🟢 " : ""}${stats.username}`),
+            el("small", {}, linked),
+          ),
+        ),
+        el("td", {}, formatPlaytime(stats.playtimeSeconds)),
+        el("td", {}, stats.online ? "En jeu" : stats.lastSeen ? formatDate(stats.lastSeen) : "—"),
+        el("td", {}, numberFormat.format(stats.deaths)),
+        el("td", {}, numberFormat.format(stats.mobKills)),
+        el("td", {}, numberFormat.format(stats.playerKills)),
+      );
+    }),
+  );
+}
+
+function compareStats(a, b, key) {
+  if (key === "username") {
+    return a.username.localeCompare(b.username, "fr", { sensitivity: "base" });
+  }
+  if (key === "lastSeen") {
+    // Les joueurs en jeu sont les plus récents
+    const time = (stats) => (stats.online ? Infinity : Date.parse(stats.lastSeen ?? "") || 0);
+    return time(a) - time(b);
+  }
+  return a[key] - b[key];
 }
 
 function renderPosts() {
@@ -343,11 +454,6 @@ function renderPosts() {
 
 function renderStatus() {
   panel.querySelector("#staff-status-current").textContent = state.statuses[state.status];
-  // Filtre la liste des joueurs whitelistés à chaque frappe
-  panel.querySelector("#staff-player-search").addEventListener("input", () => {
-    if (state) renderPlayers();
-  });
-
   panel.querySelectorAll("[data-status]").forEach((button) => {
     button.disabled = button.dataset.status === state.status;
   });
@@ -366,6 +472,13 @@ function searchText(player) {
       player.sheet.first_name,
       player.sheet.last_name,
     ].join(" "),
+  );
+}
+
+function statsSearchText(stats) {
+  const { account } = stats;
+  return normalize(
+    [stats.username, stats.uuid, account?.username, account?.displayName, account?.character].join(" "),
   );
 }
 

@@ -4,8 +4,23 @@
 # Adresse qui recoit les statistiques sur le site
 url: "https://www.thelastworld.fr/api/minecraft/stats.php"
 
+# Adresse qui controle l'acces au serveur (vide = access.php a cote de l'adresse ci-dessus)
+access-url: ""
+
 # Cle secrete : la meme que minecraft.stats_token dans api/config.php du site
 token: ""
 
 # Envoi des statistiques des joueurs connectes toutes les X secondes (minimum 60)
 interval-seconds: 300
+
+# Acces au serveur gere par le site : seuls les comptes Minecraft lies a un joueur
+# whitelist sur le site peuvent entrer. Un compte non lie est refuse avec un code
+# a saisir dans "Mon espace" sur le site.
+access-control:
+  enabled: true
+  # Les operateurs (/op) entrent toujours, meme sans compte lie
+  ops-bypass: true
+  # Tient la whitelist du serveur (/whitelist) a jour avec les comptes lies
+  manage-whitelist: true
+  # Verification de la liste des comptes autorises toutes les X secondes (minimum 30)
+  sync-seconds: 60

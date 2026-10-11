@@ -1,5 +1,5 @@
 name: TLWStats
-version: 1.1.0
+version: 1.2.0
 main: fr.thelastworld.stats.TLWStats
 author: Glakxic
-description: Envoie les statistiques des joueurs au site TheLastWorld (Mohist 1.12.2).
+description: Lie les comptes Minecraft au site TheLastWorld (acces, whitelist, statistiques). Mohist 1.12.2.

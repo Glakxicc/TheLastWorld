@@ -8,21 +8,14 @@ require __DIR__ . '/../lib/bootstrap.php';
 
 allowMethods('POST');
 
-$token = config()['minecraft']['stats_token'] ?? '';
-// Certains hébergeurs retirent l'en-tête Authorization : X-TLW-Token passe toujours
-$given = $_SERVER['HTTP_X_TLW_TOKEN']
-    ?? preg_replace('/^Bearer\s+/i', '', $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '');
-if ($token === '' || !hash_equals($token, $given)) {
-    fail(401, 'Clé invalide.');
-}
+requireServerToken();
 
 $body = readJsonBody();
-$uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/';
 
 foreach (array_slice($body['players'] ?? [], 0, 500) as $stats) {
     $uuid = strtolower((string) ($stats['uuid'] ?? ''));
     $name = (string) ($stats['name'] ?? '');
-    if (!preg_match($uuidPattern, $uuid) || !preg_match('/^[A-Za-z0-9_]{1,16}$/', $name)) {
+    if (!preg_match(MC_UUID_PATTERN, $uuid) || !preg_match(MC_NAME_PATTERN, $name)) {
         continue;
     }
 
@@ -51,7 +44,7 @@ foreach (array_slice($body['players'] ?? [], 0, 500) as $stats) {
 if (isset($body['online']) && is_array($body['online'])) {
     $online = array_values(array_filter(
         array_map(fn ($uuid) => strtolower((string) $uuid), $body['online']),
-        fn ($uuid) => preg_match($uuidPattern, $uuid),
+        fn ($uuid) => preg_match(MC_UUID_PATTERN, $uuid),
     ));
     db()->exec('UPDATE player_stats SET online = 0');
     if ($online) {

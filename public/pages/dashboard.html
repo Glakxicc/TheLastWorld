@@ -73,9 +73,25 @@
         <div class="mc-account">
           <img id="mc-head" class="mc-head" alt="" hidden />
           <div>
-            <strong id="mc-name">Non renseigné</strong>
+            <strong id="mc-name">Non lié</strong>
             <span id="mc-online" class="mc-online" hidden></span>
+            <small id="mc-linked" class="mc-linked" hidden></small>
           </div>
+          <button type="button" id="unlink-minecraft" class="unlink" hidden>Délier</button>
+        </div>
+        <div id="mc-link" class="mc-link" hidden>
+          <ol>
+            <li>Connectez-vous au serveur Minecraft avec votre compte.</li>
+            <li>Le serveur vous refuse et affiche un code de 6 caractères.</li>
+            <li>Entrez ce code ici : votre compte est lié et vous pouvez jouer.</li>
+          </ol>
+          <form id="link-form" class="link-form" novalidate>
+            <div class="input-box">
+              <input type="text" name="code" id="link-code" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" required />
+              <label for="link-code">Code de liaison</label>
+            </div>
+            <button type="submit" id="link-submit">Lier</button>
+          </form>
         </div>
         <dl class="stats" id="mc-stats">
           <div><dt>Temps de jeu</dt><dd id="stat-playtime">—</dd></div>
@@ -88,15 +104,11 @@
 
         <h3>À compléter</h3>
         <ul class="checklist">
-          <li id="check-minecraft">Pseudo Minecraft</li>
+          <li id="check-minecraft">Compte Minecraft lié</li>
           <li id="check-character">Fiche personnage complète</li>
           <li id="check-skin">Skin du personnage</li>
         </ul>
         <form id="profile-form" class="profile-form" novalidate>
-          <div class="input-box">
-            <input type="text" name="mc_username" id="mc_username" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" />
-            <label for="mc_username">Pseudo Minecraft</label>
-          </div>
           <div class="input-box">
             <input type="url" name="skin_url" id="skin_url" maxlength="256" placeholder="https://namemc.com/skin/…" />
             <label for="skin_url">Lien du skin du personnage</label>
@@ -152,6 +164,9 @@
           <button type="button" role="tab" aria-selected="false" aria-controls="staff-whitelist">
             Whitelist <span class="count" id="staff-players-count"></span>
           </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="staff-stats">
+            Statistiques <span class="count" id="staff-stats-count"></span>
+          </button>
           <button type="button" role="tab" aria-selected="false" aria-controls="staff-posts">Publications</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="staff-status">Statut</button>
         </div>
@@ -174,6 +189,30 @@
           </div>
           <p class="hint" id="staff-players-results" hidden></p>
           <div class="staff-list" id="staff-players-list"></div>
+        </div>
+
+        <div class="staff-tab" id="staff-stats" role="tabpanel" hidden>
+          <dl class="stats" id="staff-stats-summary"></dl>
+          <div class="input-box staff-search">
+            <input type="search" id="staff-stats-search" autocomplete="off" placeholder="Pseudo Minecraft, compte Discord, personnage…" />
+            <label for="staff-stats-search">Rechercher un joueur</label>
+          </div>
+          <p class="hint" id="staff-stats-hint"></p>
+          <div class="stats-table-wrap">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th scope="col"><button type="button" data-sort="username">Joueur</button></th>
+                  <th scope="col"><button type="button" data-sort="playtimeSeconds">Temps de jeu</button></th>
+                  <th scope="col"><button type="button" data-sort="lastSeen">Dernière connexion</button></th>
+                  <th scope="col"><button type="button" data-sort="deaths">Morts</button></th>
+                  <th scope="col"><button type="button" data-sort="mobKills">Monstres tués</button></th>
+                  <th scope="col"><button type="button" data-sort="playerKills">Joueurs tués</button></th>
+                </tr>
+              </thead>
+              <tbody id="staff-stats-list"></tbody>
+            </table>
+          </div>
         </div>
 
         <div class="staff-tab" id="staff-posts" role="tabpanel" hidden>

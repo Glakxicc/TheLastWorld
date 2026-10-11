@@ -16,6 +16,9 @@ const characterForm = document.querySelector("#character-form");
 const saveBtn = document.querySelector("#save-character");
 const profileForm = document.querySelector("#profile-form");
 const saveProfileBtn = document.querySelector("#save-profile");
+const linkForm = document.querySelector("#link-form");
+const linkBtn = document.querySelector("#link-submit");
+const unlinkBtn = document.querySelector("#unlink-minecraft");
 const serverAddress = document.querySelector("#server-address");
 const copyAddressBtn = document.querySelector("#copy-address");
 const newsList = document.querySelector("#members-news");
@@ -146,10 +149,7 @@ characterForm.addEventListener("submit", async (event) => {
 profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const payload = {
-    mc_username: profileForm.elements.mc_username.value.trim(),
-    skin_url: profileForm.elements.skin_url.value.trim(),
-  };
+  const payload = { skin_url: profileForm.elements.skin_url.value.trim() };
 
   saveProfileBtn.disabled = true;
   try {
@@ -164,5 +164,52 @@ profileForm.addEventListener("submit", async (event) => {
     toast(err.message, "error");
   } finally {
     saveProfileBtn.disabled = false;
+  }
+});
+
+linkForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const code = linkForm.elements.code.value.replace(/[\s-]/g, "").toUpperCase();
+  if (code.length !== 6) {
+    toast("Entrez le code de 6 caractères affiché par le serveur Minecraft.", "error");
+    return;
+  }
+
+  linkBtn.disabled = true;
+  try {
+    const { player } = await api("minecraft/link.php", { method: "POST", body: { code } });
+    linkForm.reset();
+    renderMinecraft(player);
+    toast(`Compte Minecraft ${player.minecraft.username} lié : vous pouvez rejoindre le serveur.`, "success");
+  } catch (err) {
+    if (err.status === 401) {
+      window.location.replace("./joinus.html");
+      return;
+    }
+    toast(err.message, "error");
+  } finally {
+    linkBtn.disabled = false;
+  }
+});
+
+unlinkBtn.addEventListener("click", async () => {
+  if (!confirm("Délier votre compte Minecraft ? Vous ne pourrez plus rejoindre le serveur avant de le lier à nouveau.")) {
+    return;
+  }
+
+  unlinkBtn.disabled = true;
+  try {
+    const { player } = await api("minecraft/link.php", { method: "DELETE" });
+    renderMinecraft(player);
+    toast("Compte Minecraft délié.", "success");
+  } catch (err) {
+    if (err.status === 401) {
+      window.location.replace("./joinus.html");
+      return;
+    }
+    toast(err.message, "error");
+  } finally {
+    unlinkBtn.disabled = false;
   }
 });

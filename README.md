@@ -90,18 +90,26 @@ Envoyer le contenu de `public/` à la racine de l'espace web IONOS (FTP/SFTP), a
    php tools/register-commands.php
    ```
 
-### 5. Statistiques des joueurs (plugin Minecraft)
+### 5. Plugin Minecraft (accès au serveur, whitelist, statistiques)
 
-Le plugin `TLWStats` envoie au site le temps de jeu, les morts, les monstres et joueurs
-tués, la dernière connexion et la liste des joueurs en ligne (à chaque connexion /
-déconnexion et toutes les 5 minutes). Prévu pour un serveur Mohist 1.12.2 (Java 8, 8u101 minimum pour le HTTPS) ; marche aussi sur Spigot/Paper 1.12.2+.
+Le plugin `TLWStats` relie le serveur Minecraft au site. Prévu pour un serveur Mohist 1.12.2
+(Java 8, 8u101 minimum pour le HTTPS) ; marche aussi sur Spigot/Paper 1.12.2+.
+
+- **Compte Minecraft lié au compte Discord** : un compte Minecraft non lié qui rejoint le
+  serveur est refusé avec un code à 6 caractères ; le joueur le saisit dans « Mon espace ».
+  Seul le vrai propriétaire du compte voit ce code : impossible de prendre le pseudo d'un autre.
+- **Whitelist automatique** : seuls les comptes liés à un joueur whitelisté sur le site entrent.
+  La whitelist du serveur (`/whitelist`) est tenue à jour toutes les minutes, et un joueur retiré
+  sur le site (ou par le bot) est expulsé. Les opérateurs (`/op`) entrent toujours.
+- **Statistiques** : temps de jeu, morts, monstres et joueurs tués, dernière connexion, joueurs
+  en ligne (à chaque connexion / déconnexion et toutes les 5 minutes).
 
 1. Copier `minecraft-plugin/build/TLWStats.jar` dans le dossier `plugins/` du serveur
    et redémarrer : `plugins/TLWStats/config.yml` est créé.
 2. Y coller la clé `minecraft.stats_token` de `api/config.php` dans `token`, puis redémarrer.
+3. Le serveur doit être en `online-mode=true` (sinon les comptes ne sont pas vérifiés par Mojang).
 
-Les statistiques apparaissent dans « Mon espace » une fois que le joueur a renseigné
-son pseudo Minecraft. Recompiler : `mvn package` dans `minecraft-plugin/`.
+Recompiler : `mvn package` dans `minecraft-plugin/`.
 
 ## Développement local
 

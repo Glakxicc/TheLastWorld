@@ -20,6 +20,7 @@ try {
     $message = match ($body['action'] ?? '') {
         'whitelist.add' => actionWhitelistAdd((string) ($body['player'] ?? ''), $author),
         'whitelist.remove' => actionWhitelistRemove((int) ($body['playerId'] ?? 0)),
+        'minecraft.unlink' => actionMinecraftUnlink((int) ($body['playerId'] ?? 0)),
         'post.create' => actionPostCreate($body, $author),
         'post.delete' => deletePost((int) ($body['id'] ?? 0))
             ? 'Publication supprimée.'
@@ -58,6 +59,16 @@ function actionWhitelistRemove(int $playerId): string
         throw new InvalidArgumentException("Ce joueur n'est pas whitelisté.");
     }
     return "{$player['discord_username']} n'a plus accès au site.";
+}
+
+function actionMinecraftUnlink(int $playerId): string
+{
+    $player = findPlayerById($playerId);
+    if ($player === null || $player['mc_uuid'] === null) {
+        throw new InvalidArgumentException("Ce joueur n'a pas de compte Minecraft lié.");
+    }
+    unlinkMinecraftAccount($playerId);
+    return "Compte Minecraft {$player['mc_username']} délié de {$player['discord_username']}.";
 }
 
 function actionPostCreate(array $body, string $author): string
@@ -116,6 +127,7 @@ function staffOverview(): array
             'minecraft' => [
                 'username' => $player['mc_username'] ?? '',
                 'uuid' => $player['mc_uuid'] ?? '',
+                'linkedAt' => $player['mc_linked_at'] ?? null,
                 'skinUrl' => $player['skin_url'] ?? '',
             ],
             'stats' => $player['stats_updated_at'] === null ? null : [
@@ -127,6 +139,24 @@ function staffOverview(): array
                 'online' => (bool) $player['mc_online'],
             ],
         ], whitelistedPlayers()),
+        'serverStats' => array_map(fn ($stats) => [
+            'uuid' => $stats['mc_uuid'],
+            'username' => $stats['mc_username'],
+            'playtimeSeconds' => (int) $stats['playtime_seconds'],
+            'deaths' => (int) $stats['deaths'],
+            'mobKills' => (int) $stats['mob_kills'],
+            'playerKills' => (int) $stats['player_kills'],
+            'lastSeen' => $stats['last_seen'],
+            'online' => (bool) $stats['online'],
+            'updatedAt' => $stats['updated_at'],
+            // Compte du site lié à ce pseudo Minecraft (null si personne ne l'a renseigné)
+            'account' => $stats['player_id'] === null ? null : [
+                'username' => $stats['discord_username'],
+                'displayName' => $stats['display_name'],
+                'character' => trim(($stats['first_name'] ?? '') . ' ' . ($stats['last_name'] ?? '')),
+                'whitelisted' => (bool) $stats['whitelisted'],
+            ],
+        ], serverStats()),
         'posts' => array_map(fn ($post) => [
             'id' => (int) $post['id'],
             'category' => $post['category'],

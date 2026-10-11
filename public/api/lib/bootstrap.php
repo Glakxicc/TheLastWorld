@@ -10,6 +10,7 @@ require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/form.php';
 require_once __DIR__ . '/actions.php';
 require_once __DIR__ . '/staff.php';
+require_once __DIR__ . '/minecraft.php';
 
 const DATA_DIR = __DIR__ . '/../data';
 

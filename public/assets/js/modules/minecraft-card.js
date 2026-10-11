@@ -11,13 +11,19 @@ export function renderMinecraft(player) {
   const head = document.querySelector("#mc-head");
   const name = document.querySelector("#mc-name");
   const online = document.querySelector("#mc-online");
+  const linked = document.querySelector("#mc-linked");
   const hint = document.querySelector("#stats-hint");
+  const isLinked = Boolean(minecraft.uuid);
 
-  name.textContent = minecraft.username || "Non renseigné";
-  head.hidden = !minecraft.uuid;
-  if (minecraft.uuid) {
+  name.textContent = minecraft.username || "Non lié";
+  head.hidden = !isLinked;
+  if (isLinked) {
     head.src = `https://mc-heads.net/avatar/${minecraft.uuid}/64`;
   }
+  linked.hidden = !isLinked;
+  linked.textContent = minecraft.linkedAt ? `✅ Compte vérifié, lié le ${formatDate(minecraft.linkedAt)}` : "✅ Compte vérifié";
+  document.querySelector("#unlink-minecraft").hidden = !isLinked;
+  document.querySelector("#mc-link").hidden = isLinked;
 
   online.hidden = !stats;
   if (stats) {
@@ -30,14 +36,13 @@ export function renderMinecraft(player) {
   setStat("#stat-mob-kills", stats && numberFormat.format(stats.mobKills));
   setStat("#stat-player-kills", stats && numberFormat.format(stats.playerKills));
 
-  hint.textContent = !minecraft.username
-    ? "Renseignez votre pseudo Minecraft pour voir vos statistiques."
+  hint.textContent = !isLinked
+    ? "Liez votre compte Minecraft pour pouvoir jouer et voir vos statistiques."
     : stats
       ? `Mis à jour le ${formatDate(stats.updatedAt)}.`
       : `Pas encore de statistiques : connectez-vous au serveur avec ${minecraft.username}.`;
 
   const form = document.querySelector("#profile-form");
-  form.elements.mc_username.value = minecraft.username;
   form.elements.skin_url.value = minecraft.skinUrl;
 
   renderChecklist(player);
@@ -45,7 +50,7 @@ export function renderMinecraft(player) {
 
 export function renderChecklist(player) {
   const characterComplete = Object.values(player.character).every((value) => value !== "");
-  setChecked("#check-minecraft", Boolean(player.minecraft.username));
+  setChecked("#check-minecraft", Boolean(player.minecraft.uuid));
   setChecked("#check-character", characterComplete);
   setChecked("#check-skin", Boolean(player.minecraft.skinUrl));
 }

@@ -120,6 +120,66 @@ body.loading .dashboard {
   font-size: 14px;
 }
 
+.mc-linked {
+  display: block;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* Délier : à droite de la ligne du compte, et dans la fiche du panneau staff */
+.unlink {
+  height: auto;
+  padding: 4px 12px;
+  font-size: 14px;
+}
+
+.mc-account .unlink {
+  margin-left: auto;
+}
+
+.player-details .unlink {
+  margin: 0.25rem 0 0.75rem;
+}
+
+/* Liaison du compte Minecraft avec le code donné par le serveur */
+.mc-link ol {
+  margin: 0.75rem 0 1.25rem;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+.link-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.link-form .input-box {
+  flex: 1;
+  max-width: 260px;
+}
+
+.link-form input {
+  font-family: monospace;
+  font-size: 20px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+#link-submit {
+  height: 56px;
+  padding: 0 28px;
+  background-color: var(--color-success);
+}
+
+#link-submit:hover {
+  background-color: #25d940c6;
+}
+
+#link-submit:disabled {
+  opacity: 0.6;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -477,4 +537,95 @@ button.refuse:hover {
   padding: 1px 8px;
   border: 1px solid var(--color-border-soft);
   font-size: 12px;
+}
+
+/* Statistiques du serveur (panneau staff) */
+#staff-stats-summary {
+  margin: 0 0 1rem;
+}
+
+#staff-stats-hint {
+  margin: 0 0 0.75rem;
+}
+
+.stats-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border-soft);
+}
+
+.stats-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.stats-table th:first-child,
+.stats-table td:first-child {
+  text-align: left;
+}
+
+.stats-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.stats-table tbody tr:hover {
+  background-color: var(--color-surface);
+}
+
+.stats-table th button {
+  height: auto;
+  padding: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.stats-table th button:hover {
+  background: none;
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.stats-table th[aria-sort="ascending"] button,
+.stats-table th[aria-sort="descending"] button {
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.stats-table th[aria-sort="ascending"] button::after {
+  content: " ▲";
+}
+
+.stats-table th[aria-sort="descending"] button::after {
+  content: " ▼";
+}
+
+.stats-player {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stats-player .mc-head {
+  width: 32px;
+  height: 32px;
+}
+
+.stats-player strong,
+.stats-player small {
+  display: block;
+}
+
+.stats-player small {
+  font-size: 12px;
+  opacity: 0.7;
 }
