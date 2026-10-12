@@ -92,6 +92,36 @@ function linkMinecraftAccount(array $player, string $code): void
     db()->prepare('DELETE FROM mc_link_codes WHERE code = ?')->execute([$code]);
 }
 
+/** Taille maximale d'un inventaire reçu (JSON), largement au-dessus d'un inventaire plein. */
+const INVENTORY_MAX_BYTES = 262144;
+
+/** Enregistre le dernier inventaire connu d'un compte Minecraft. */
+function saveInventory(string $uuid, array $inventory): void
+{
+    $data = json_encode($inventory, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($data === false || strlen($data) > INVENTORY_MAX_BYTES) {
+        return;
+    }
+
+    $exists = db()->prepare('SELECT 1 FROM player_inventories WHERE mc_uuid = ?');
+    $exists->execute([$uuid]);
+    db()->prepare($exists->fetchColumn()
+        ? 'UPDATE player_inventories SET data = ?, updated_at = ? WHERE mc_uuid = ?'
+        : 'INSERT INTO player_inventories (data, updated_at, mc_uuid) VALUES (?, ?, ?)')->execute([$data, now(), $uuid]);
+}
+
+/** Dernier inventaire connu d'un compte Minecraft, ou null si le serveur ne l'a jamais envoyé. */
+function findInventory(string $uuid): ?array
+{
+    $statement = db()->prepare('SELECT data, updated_at FROM player_inventories WHERE mc_uuid = ?');
+    $statement->execute([$uuid]);
+    $row = $statement->fetch();
+    if (!$row) {
+        return null;
+    }
+    return ['inventory' => json_decode($row['data'], true) ?: [], 'updatedAt' => $row['updated_at']];
+}
+
 function unlinkMinecraftAccount(int $playerId): void
 {
     db()->prepare('UPDATE players SET mc_uuid = NULL, mc_username = NULL, mc_linked_at = NULL WHERE id = ?')

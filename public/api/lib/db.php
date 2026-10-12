@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 6;
 
 const SERVER_STATUSES = [
     'open' => '🟢 Ouvert',
@@ -145,6 +145,32 @@ function migrate(PDO $pdo): void
         $pdo->exec('UPDATE players SET mc_username = NULL, mc_uuid = NULL WHERE mc_linked_at IS NULL');
     }
 
+    // v5 : connexion du launcher (codes à usage unique, puis clé gardée par le launcher)
+    if ($version < 5) {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS launcher_codes (
+            code_hash VARCHAR(64) PRIMARY KEY,
+            player_id INTEGER NOT NULL,
+            challenge VARCHAR(64) NOT NULL,
+            expires_at VARCHAR(32) NOT NULL
+        )$engine");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS launcher_tokens (
+            token_hash VARCHAR(64) PRIMARY KEY,
+            player_id INTEGER NOT NULL,
+            created_at VARCHAR(32) NOT NULL,
+            last_used_at VARCHAR(32) NOT NULL
+        )$engine");
+    }
+
+    // v6 : dernier inventaire connu des joueurs, envoyé par le plugin (consultable par le staff)
+    if ($version < 6) {
+        $data = $sqlite ? 'TEXT' : 'MEDIUMTEXT';
+        $pdo->exec("CREATE TABLE IF NOT EXISTS player_inventories (
+            mc_uuid VARCHAR(36) PRIMARY KEY,
+            data $data NOT NULL,
+            updated_at VARCHAR(32) NOT NULL
+        )$engine");
+    }
+
     setSetting('schema_version', (string) SCHEMA_VERSION, $pdo);
     if (getSetting('server_status', null, $pdo) === null) {
         setSetting('server_status', 'open', $pdo);
@@ -275,8 +301,10 @@ function whitelistedPlayers(): array
 {
     return db()->query(
         'SELECT players.*, stats.playtime_seconds, stats.deaths, stats.mob_kills, stats.player_kills,
-                stats.last_seen AS mc_last_seen, stats.online AS mc_online, stats.updated_at AS stats_updated_at
+                stats.last_seen AS mc_last_seen, stats.online AS mc_online, stats.updated_at AS stats_updated_at,
+                inventory.updated_at AS inventory_updated_at
          FROM players LEFT JOIN player_stats stats ON stats.mc_uuid = players.mc_uuid
+         LEFT JOIN player_inventories inventory ON inventory.mc_uuid = players.mc_uuid
          WHERE players.whitelisted = 1 ORDER BY players.discord_username',
     )->fetchAll();
 }

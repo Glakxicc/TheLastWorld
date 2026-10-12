@@ -103,6 +103,9 @@ Le plugin `TLWStats` relie le serveur Minecraft au site. Prévu pour un serveur 
   sur le site (ou par le bot) est expulsé. Les opérateurs (`/op`) entrent toujours.
 - **Statistiques** : temps de jeu, morts, monstres et joueurs tués, dernière connexion, joueurs
   en ligne (à chaque connexion / déconnexion et toutes les 5 minutes).
+- **Inventaires** : inventaire, armure, seconde main et coffre de l'Ender de chaque joueur, envoyés
+  en même temps que les statistiques. Le staff les consulte dans « Mon espace » → Joueurs →
+  fiche du joueur → « Voir l'inventaire » (dernier état connu, même hors ligne).
 
 1. Copier `minecraft-plugin/build/TLWStats.jar` dans le dossier `plugins/` du serveur
    et redémarrer : `plugins/TLWStats/config.yml` est créé.

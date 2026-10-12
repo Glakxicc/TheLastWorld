@@ -4,10 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,6 +18,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.net.ssl.SSLException;
@@ -31,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
@@ -44,7 +51,8 @@ import java.util.regex.Pattern;
  * - accès au serveur : seuls les comptes Minecraft liés à un joueur whitelisté sur le site peuvent entrer ;
  *   un compte non lié est refusé avec un code à saisir dans « Mon espace » (preuve qu'il en est le propriétaire) ;
  * - whitelist du serveur tenue à jour automatiquement depuis le site ;
- * - statistiques des joueurs (temps de jeu, morts, kills, dernière connexion) et joueurs connectés.
+ * - statistiques des joueurs (temps de jeu, morts, kills, dernière connexion) et joueurs connectés ;
+ * - inventaire et coffre de l'Ender des joueurs, consultables par le staff sur le site.
  *
  * Prévu pour Mohist 1.12.2 (Forge + Bukkit, Java 8), fonctionne aussi sur Spigot/Paper 1.12.2+.
  */
@@ -335,6 +343,7 @@ public final class TLWStats extends JavaPlugin implements Listener {
                 .append(",\"mobKills\":").append(stat(player, Statistic.MOB_KILLS))
                 .append(",\"playerKills\":").append(stat(player, Statistic.PLAYER_KILLS))
                 .append(",\"lastSeen\":").append(now)
+                .append(",\"inventory\":").append(inventory(player))
                 .append('}');
             separator = ",";
         }
@@ -346,6 +355,73 @@ public final class TLWStats extends JavaPlugin implements Listener {
             separator = ",";
         }
         return json.append("]}").toString();
+    }
+
+    // --- Inventaire ---
+
+    /** Inventaire complet du joueur : rangées, armure, seconde main et coffre de l'Ender. */
+    private JsonObject inventory(Player player) {
+        JsonObject inventory = new JsonObject();
+        try {
+            PlayerInventory contents = player.getInventory();
+            // 0-8 : barre d'action, 9-35 : inventaire
+            inventory.add("main", items(contents.getStorageContents()));
+            // 0 : bottes, 1 : jambières, 2 : plastron, 3 : casque
+            inventory.add("armor", items(contents.getArmorContents()));
+            inventory.add("offhand", items(new ItemStack[] {contents.getItemInOffHand()}));
+            inventory.add("enderChest", items(player.getEnderChest().getContents()));
+            inventory.addProperty("heldSlot", contents.getHeldItemSlot());
+            inventory.addProperty("level", player.getLevel());
+            inventory.addProperty("health", Math.round(player.getHealth() * 10) / 10.0);
+            inventory.addProperty("food", player.getFoodLevel());
+        } catch (Throwable error) {
+            getLogger().fine("Inventaire illisible pour " + player.getName() + " : " + error);
+        }
+        return inventory;
+    }
+
+    /** Objets non vides d'une partie de l'inventaire, avec leur case. */
+    private JsonArray items(ItemStack[] stacks) {
+        JsonArray items = new JsonArray();
+        for (int slot = 0; slot < stacks.length; slot++) {
+            ItemStack stack = stacks[slot];
+            if (stack == null || stack.getType() == Material.AIR || stack.getAmount() <= 0) {
+                continue;
+            }
+            // Un objet moddé peut lever une erreur : on garde au moins son type
+            JsonObject item = new JsonObject();
+            item.addProperty("slot", slot);
+            item.addProperty("type", stack.getType().name());
+            item.addProperty("amount", stack.getAmount());
+            try {
+                item.addProperty("damage", stack.getDurability());
+                item.addProperty("maxDamage", stack.getType().getMaxDurability());
+                if (stack.hasItemMeta()) {
+                    ItemMeta meta = stack.getItemMeta();
+                    if (meta.hasDisplayName()) {
+                        item.addProperty("name", ChatColor.stripColor(meta.getDisplayName()));
+                    }
+                    if (meta.hasLore()) {
+                        JsonArray lore = new JsonArray();
+                        for (String line : meta.getLore()) {
+                            lore.add(new JsonPrimitive(ChatColor.stripColor(line)));
+                        }
+                        item.add("lore", lore);
+                    }
+                }
+                if (!stack.getEnchantments().isEmpty()) {
+                    JsonObject enchantments = new JsonObject();
+                    for (Map.Entry<Enchantment, Integer> enchantment : stack.getEnchantments().entrySet()) {
+                        enchantments.addProperty(enchantment.getKey().getName(), enchantment.getValue());
+                    }
+                    item.add("enchantments", enchantments);
+                }
+            } catch (Throwable error) {
+                getLogger().fine("Objet " + stack.getType() + " illisible : " + error);
+            }
+            items.add(item);
+        }
+        return items;
     }
 
     /** Lecture protégée : sur un serveur hybride Forge, une statistique peut manquer ou lever une erreur. */

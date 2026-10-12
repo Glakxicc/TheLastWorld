@@ -2,8 +2,9 @@
 
 // --- Import ---
 import { api } from "./api.js";
+import { openInventoryModal } from "./inventory-modal.js";
 import { formatPlaytime } from "./minecraft-card.js";
-import { formatDate } from "./posts.js";
+import { formatDate, formatDateTime } from "./posts.js";
 import { toast } from "./toast.js";
 
 const APPLICATION_FIELDS = {
@@ -292,11 +293,16 @@ function playerDetails(player) {
       }
     });
   }
+  let inventory = "";
+  if (minecraft.uuid && player.inventoryUpdatedAt) {
+    inventory = el("button", { type: "button", className: "inventory-open" }, "Voir l'inventaire");
+    inventory.addEventListener("click", () => openInventoryModal(player, inventory));
+  }
   const mcStats = stats
     ? infoList({
         "En jeu": stats.online ? "🟢 Oui" : "⚫ Non",
         "Temps de jeu": formatPlaytime(stats.playtimeSeconds),
-        "Dernière connexion": stats.online ? "Maintenant" : date(stats.lastSeen),
+        "Dernière connexion": stats.online ? "Maintenant" : stats.lastSeen ? formatDateTime(stats.lastSeen) : "—",
         Morts: String(stats.deaths),
         "Monstres tués": String(stats.mobKills),
         "Joueurs tués": String(stats.playerKills),
@@ -319,7 +325,8 @@ function playerDetails(player) {
     "div",
     { className: "player-details" },
     el("section", {}, el("h4", {}, "Discord"), discord),
-    el("section", {}, el("h4", {}, "Minecraft"), head, mcInfo, mcStats, unlink),
+    el("section", {}, el("h4", {}, "Minecraft"), head, mcInfo, mcStats,
+      el("div", { className: "player-mc-actions" }, inventory, unlink)),
     el("section", { className: "player-details-wide" }, el("h4", {}, "Fiche personnage"), character),
   );
 }
@@ -359,7 +366,7 @@ function renderStats() {
     ? "Aucune statistique reçue : vérifiez que le plugin TLWStats tourne sur le serveur."
     : [
         query ? `${rows.length} joueur${rows.length > 1 ? "s" : ""} sur ${all.length}` : "",
-        `Dernier envoi du serveur : ${formatDate(lastUpdate)}`,
+        `Dernier envoi du serveur : ${formatDateTime(lastUpdate)}`,
       ].filter(Boolean).join(" · ");
 
   panel.querySelectorAll("[data-sort]").forEach((button) => {
@@ -393,7 +400,7 @@ function renderStats() {
           ),
         ),
         el("td", {}, formatPlaytime(stats.playtimeSeconds)),
-        el("td", {}, stats.online ? "En jeu" : stats.lastSeen ? formatDate(stats.lastSeen) : "—"),
+        el("td", {}, stats.online ? "En jeu" : stats.lastSeen ? formatDateTime(stats.lastSeen) : "—"),
         el("td", {}, numberFormat.format(stats.deaths)),
         el("td", {}, numberFormat.format(stats.mobKills)),
         el("td", {}, numberFormat.format(stats.playerKills)),

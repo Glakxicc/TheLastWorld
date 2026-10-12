@@ -2,9 +2,15 @@
 import { openPostModal } from "./post-modal.js";
 
 const dateFormat = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
+const dateTimeFormat = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" });
 
 export function formatDate(isoDate) {
   return dateFormat.format(new Date(isoDate));
+}
+
+/** Date et heure, à l'heure du visiteur (ex. « 11 octobre 2026 à 14:05 »). */
+export function formatDateTime(isoDate) {
+  return dateTimeFormat.format(new Date(isoDate));
 }
 
 /** Remplace le contenu de `list` par les publications (texte brut, jamais de HTML). */

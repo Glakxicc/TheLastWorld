@@ -1,7 +1,7 @@
 // Partie « Mon compte Minecraft », statistiques et « À compléter » du bloc Serveur.
 
 // --- Import ---
-import { formatDate } from "./posts.js";
+import { formatDate, formatDateTime } from "./posts.js";
 
 const numberFormat = new Intl.NumberFormat("fr-FR");
 
@@ -31,7 +31,7 @@ export function renderMinecraft(player) {
   }
 
   setStat("#stat-playtime", stats && formatPlaytime(stats.playtimeSeconds));
-  setStat("#stat-last-seen", stats && (stats.online ? "Maintenant" : stats.lastSeen && formatDate(stats.lastSeen)));
+  setStat("#stat-last-seen", stats && (stats.online ? "Maintenant" : stats.lastSeen && formatDateTime(stats.lastSeen)));
   setStat("#stat-deaths", stats && numberFormat.format(stats.deaths));
   setStat("#stat-mob-kills", stats && numberFormat.format(stats.mobKills));
   setStat("#stat-player-kills", stats && numberFormat.format(stats.playerKills));

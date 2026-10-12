@@ -38,6 +38,11 @@ foreach (array_slice($body['players'] ?? [], 0, 500) as $stats) {
            last_seen = COALESCE(?, last_seen), updated_at = ? WHERE mc_uuid = ?'
         : 'INSERT INTO player_stats (mc_username, playtime_seconds, deaths, mob_kills, player_kills, last_seen, updated_at, mc_uuid)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)')->execute($values);
+
+    // Plugin 1.3.0+ : inventaire du joueur
+    if (isset($stats['inventory']) && is_array($stats['inventory']) && $stats['inventory']) {
+        saveInventory($uuid, $stats['inventory']);
+    }
 }
 
 // Liste complète des joueurs connectés : tous les autres passent hors ligne

@@ -138,6 +138,7 @@ function staffOverview(): array
                 'lastSeen' => $player['mc_last_seen'],
                 'online' => (bool) $player['mc_online'],
             ],
+            'inventoryUpdatedAt' => $player['inventory_updated_at'],
         ], whitelistedPlayers()),
         'serverStats' => array_map(fn ($stats) => [
             'uuid' => $stats['mc_uuid'],

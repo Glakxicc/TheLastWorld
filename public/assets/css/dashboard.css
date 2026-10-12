@@ -137,8 +137,17 @@ body.loading .dashboard {
   margin-left: auto;
 }
 
-.player-details .unlink {
+.player-mc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin: 0.25rem 0 0.75rem;
+}
+
+.inventory-open {
+  height: auto;
+  padding: 4px 12px;
+  font-size: 14px;
 }
 
 /* Liaison du compte Minecraft avec le code donné par le serveur */
@@ -628,4 +637,138 @@ button.refuse:hover {
 .stats-player small {
   font-size: 12px;
   opacity: 0.7;
+}
+
+/* Inventaire d'un joueur (panneau staff), disposé comme dans le jeu */
+.inventory-modal {
+  width: min(820px, 94vw);
+}
+
+.inventory-meta {
+  margin: 0 0 1rem;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.inventory-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.inventory-player {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+
+.inventory-section h4 {
+  margin: 0 0 0.5rem;
+  font-size: 18px;
+  font-weight: 10;
+  color: var(--color-accent);
+}
+
+.inventory-equipment {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.inventory-grid {
+  --slot: 40px;
+  display: grid;
+  grid-template-columns: repeat(9, var(--slot));
+  gap: 2px;
+}
+
+.inventory-armor,
+.inventory-offhand {
+  grid-template-columns: var(--slot);
+}
+
+/* Barre d'action, séparée du reste de l'inventaire comme en jeu */
+.inventory-section .inventory-grid + .inventory-grid {
+  margin-top: 6px;
+}
+
+.inventory-slot {
+  position: relative;
+  width: var(--slot);
+  height: var(--slot);
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--color-text);
+  font-size: 12px;
+}
+
+.inventory-slot:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.inventory-slot:not(:disabled) {
+  background: hsl(var(--item-hue) 35% 28%);
+  cursor: pointer;
+}
+
+.inventory-slot:not(:disabled):hover,
+.inventory-slot:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: -2px;
+}
+
+.inventory-slot.held {
+  border-color: var(--color-text);
+}
+
+.inventory-slot.enchanted {
+  box-shadow: inset 0 0 10px hsl(280 90% 70% / 0.7);
+}
+
+.inventory-item {
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.inventory-amount {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-size: 11px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.inventory-durability {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 2px;
+  height: 2px;
+  background: #000;
+}
+
+.inventory-durability::after {
+  content: "";
+  display: block;
+  width: calc(var(--durability) * 100%);
+  height: 100%;
+  background: hsl(calc(var(--durability) * 120) 90% 45%);
+}
+
+.inventory-detail {
+  min-height: 4rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.inventory-detail dd {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .inventory-grid {
+    --slot: calc((100vw - 5rem) / 9);
+  }
 }
